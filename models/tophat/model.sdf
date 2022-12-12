@@ -18,7 +18,7 @@
 				<geometry>
 					<mesh>
 						<uri>model://tophat/meshes/tophat.dae</uri>
-						<scale>1.25 1.25 1.25</scale>
+						<scale>2.0 2.0 2.0</scale>
 					</mesh>
 				</geometry>
 			</collision>
@@ -27,7 +27,7 @@
 				<geometry>
 					<mesh>
 						<uri>model://tophat/meshes/tophat.dae</uri>
-						<scale>1.25 1.25 1.25</scale>
+						<scale>2.0 2.0 2.0</scale>
 					</mesh>
 				</geometry>
 			</visual>
