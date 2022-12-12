@@ -19,8 +19,9 @@ All ROS software must be 'melodic' unless specified otherwise.
 
 Asset placement:
 - Models: ~/workspace/src/baxter_simulator/baxter_sim_examples
-- World files: ~/workspace/src/baxter_simulator/baxter_gazebo
+- World files: ~/workspace/src/baxter_simulator/baxter_gazebo/worlds
 - Scripts: ~/workspace/src/baxter_simulator/baxter_sim_examples/scripts
+- Launch files: ~/workspace/src/baxter_simulator/baxter_gazebo/launch
 
 
 To run the simulation:
