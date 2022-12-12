@@ -1,0 +1,3010 @@
+<sdf version='1.6'>
+  <world name='default'>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose frame=''>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <contact>
+              <collide_bitmask>65535</collide_bitmask>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics name='default_physics' default='0' type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <audio>
+      <device>default</device>
+    </audio>
+    <wind/>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <model name='baxter'>
+      <link name='base'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>0 -0 3e-06 0 -0 0</pose>
+          <mass>96.2011</mass>
+          <inertia>
+            <ixx>6.91297</ixx>
+            <ixy>0.00068017</ixy>
+            <ixz>0.64779</ixz>
+            <iyy>7.74978</iyy>
+            <iyz>0.00434511</iyz>
+            <izz>5.76418</izz>
+          </inertia>
+        </inertial>
+        <collision name='base_fixed_joint_lump__collision_head_link_1_collision'>
+          <pose frame=''>0.04 -0.04 0.75 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.22</radius>
+            </sphere>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_fixed_joint_lump__collision_head_link_2_collision_1'>
+          <pose frame=''>0.04 0.04 0.75 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.22</radius>
+            </sphere>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_fixed_joint_lump__torso_collision_2'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/torso/base_link_collision.DAE</uri>
+            </mesh>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='base_fixed_joint_lump__pedestal_collision_3'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/base/pedestal_link_collision.DAE</uri>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base_fixed_joint_lump__sonar_ring_collision_4'>
+          <pose frame=''>0.0947 0 0.817 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.001</radius>
+            </sphere>
+          </geometry>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <friction>
+              <ode/>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='base_fixed_joint_lump__collision_head_link_1_visual'>
+          <pose frame=''>0.11 0 0.75 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.001</radius>
+            </sphere>
+          </geometry>
+        </visual>
+        <visual name='base_fixed_joint_lump__collision_head_link_2_visual_1'>
+          <pose frame=''>0.11 0 0.75 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.001</radius>
+            </sphere>
+          </geometry>
+        </visual>
+        <visual name='base_fixed_joint_lump__torso_visual_2'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/torso/base_link.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='base_fixed_joint_lump__pedestal_visual_3'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/base/PEDESTAL.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='base_fixed_joint_lump__sonar_ring_visual_4'>
+          <pose frame=''>0.06 0 0.82653 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.01</length>
+              <radius>0.085</radius>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay/>
+        <self_collide>1</self_collide>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <sensor name='sonar' type='ray'>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>12</samples>
+                <resolution>1</resolution>
+                <min_angle>-3.14</min_angle>
+                <max_angle>3.14</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>2</samples>
+                <resolution>1</resolution>
+                <min_angle>-0.001</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.05</min>
+              <max>50</max>
+            </range>
+          </ray>
+          <plugin name='sonar_plugin' filename='libgazebo_ros_block_laser.so'>
+            <gaussianNoise>0.00</gaussianNoise>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>100.0</updateRate>
+            <topicName>/robot/sonar/head_sonar/state</topicName>
+            <frameName>sonar_ring</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <always_on>1</always_on>
+          <update_rate>100</update_rate>
+          <pose frame=''>0.0947 0 0.817 0 -0 0</pose>
+        </sensor>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='fixed' type='fixed'>
+        <child>base</child>
+        <parent>world</parent>
+      </joint>
+      <link name='head'>
+        <pose frame=''>0.06 0 0.686 0 -0 0</pose>
+        <inertial>
+          <pose frame=''>0.054677 0 5e-06 0 -0 0</pose>
+          <mass>0.988238</mass>
+          <inertia>
+            <ixx>0.00620194</ixx>
+            <ixy>0.000202093</ixy>
+            <ixz>0.000495898</ixz>
+            <iyy>0.010977</iyy>
+            <iyz>-0.00109806</iyz>
+            <izz>0.00983914</izz>
+          </inertia>
+        </inertial>
+        <collision name='head_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <sphere>
+              <radius>0.001</radius>
+            </sphere>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='head_fixed_joint_lump__screen_collision_1'>
+          <pose frame=''>0.1227 0 0 1.75057 0 1.5708</pose>
+          <geometry>
+            <sphere>
+              <radius>0.001</radius>
+            </sphere>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='head_visual'>
+          <pose frame=''>0 0 0.00953 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/head/H0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='head_fixed_joint_lump__screen_visual_1'>
+          <pose frame=''>0.086855 0 -0.003172 1.5708 0.179774 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/head/H1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='head_fixed_joint_lump__display_visual_2'>
+          <pose frame=''>0.119839 0 -0.015742 2.01237 0 1.5708</pose>
+          <geometry>
+            <box>
+              <size>0.218 0.16 0.001</size>
+            </box>
+          </geometry>
+          <plugin name='screen_video_controller' filename='libgazebo_ros_video.so'>
+            <height>600</height>
+            <width>1024</width>
+            <topicName>/robot/xdisplay</topicName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay/>
+        <sensor name='head_camera' type='camera'>
+          <update_rate>30</update_rate>
+          <camera name='head_camera'>
+            <pose frame=''>0 0.21 0 -0 -0.8 -1.5708</pose>
+            <horizontal_fov>1.39626</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>0.0</updateRate>
+            <cameraName>head_camera</cameraName>
+            <imageTopicName>image</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>head_camera</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <robotNamespace>/cameras</robotNamespace>
+          </plugin>
+          <pose frame=''>0.12839 0 0.06368 1.75057 0 1.5708</pose>
+        </sensor>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='head_pan' type='revolute'>
+        <child>head</child>
+        <parent>base</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-1.3963</lower>
+            <upper>1.3963</upper>
+            <effort>50000</effort>
+            <velocity>10000</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_upper_shoulder'>
+        <pose frame=''>0.064027 0.259027 0.129626 0 -0 0.7854</pose>
+        <inertial>
+          <pose frame=''>0.01783 0.00086 0.19127 0 -0 0</pose>
+          <mass>5.70044</mass>
+          <inertia>
+            <ixx>0.047091</ixx>
+            <ixy>0.000127876</ixy>
+            <ixz>0.0061487</ixz>
+            <iyy>0.0376698</iyy>
+            <iyz>0.000780869</iyz>
+            <izz>0.0359599</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_upper_shoulder_collision'>
+          <pose frame=''>0 0 0.1361 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.2722</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_upper_shoulder_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/upper_shoulder/S0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_s0' type='revolute'>
+        <child>left_upper_shoulder</child>
+        <parent>base</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-1.70168</lower>
+            <upper>1.70168</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_lower_shoulder'>
+        <pose frame=''>0.112818 0.307818 0.399976 -1.5708 -0 0.7854</pose>
+        <inertial>
+          <pose frame=''>0.068451 0.00269 -0.00529 0 -0 0</pose>
+          <mass>3.22708</mass>
+          <inertia>
+            <ixx>0.0117521</ixx>
+            <ixy>-0.000300954</ixy>
+            <ixz>0.00207674</ixz>
+            <iyy>0.0278861</iyy>
+            <iyz>-0.000188219</iyz>
+            <izz>0.0207877</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_lower_shoulder_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.12</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='left_lower_shoulder_fixed_joint_lump__left_upper_elbow_visual_collision_1'>
+          <pose frame=''>0.2435 -0 0 1.5708 -0 1.5708</pose>
+          <geometry>
+            <cylinder>
+              <length>0.273</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_lower_shoulder_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/lower_shoulder/S1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_s1' type='revolute'>
+        <child>left_lower_shoulder</child>
+        <parent>left_upper_shoulder</parent>
+        <axis>
+          <xyz>-0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-2.147</lower>
+            <upper>1.047</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_upper_elbow'>
+        <pose frame=''>0.184942 0.379943 0.399976 2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>-0.00276 0.00132 0.18086 0 -0 0</pose>
+          <mass>4.31272</mass>
+          <inertia>
+            <ixx>0.0266173</ixx>
+            <ixy>0.000292706</ixy>
+            <ixz>0.0039219</ixz>
+            <iyy>0.0284436</iyy>
+            <iyz>0.00108389</iyz>
+            <izz>0.0124801</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_upper_elbow_collision'>
+          <pose frame=''>0 0 -0.0535 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.107</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_upper_elbow_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/upper_elbow/E0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_e0' type='revolute'>
+        <child>left_upper_elbow</child>
+        <parent>left_lower_shoulder</parent>
+        <axis>
+          <xyz>0.707105 0.707108 0</xyz>
+          <limit>
+            <lower>-3.05418</lower>
+            <upper>3.05418</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_lower_elbow'>
+        <pose frame=''>0.370501 0.565502 0.330976 -1.5708 -0 0.7854</pose>
+        <inertial>
+          <pose frame=''>0.026113 0.00159 -0.01117 0 -0 0</pose>
+          <mass>2.07216</mass>
+          <inertia>
+            <ixx>0.00711585</ixx>
+            <ixy>0.000360372</ixy>
+            <ixz>0.00074588</ixz>
+            <iyy>0.0131827</iyy>
+            <iyz>-0.000196632</iyz>
+            <izz>0.00926891</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_lower_elbow_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='left_lower_elbow_fixed_joint_lump__left_upper_forearm_visual_collision_1'>
+          <pose frame=''>0.224 -0 0 1.5708 -0 1.5708</pose>
+          <geometry>
+            <cylinder>
+              <length>0.272</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_lower_elbow_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/lower_elbow/E1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_e1' type='revolute'>
+        <child>left_lower_elbow</child>
+        <parent>left_upper_elbow</parent>
+        <axis>
+          <xyz>-0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-0.05</lower>
+            <upper>2.618</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_upper_forearm'>
+        <pose frame=''>0.44375 0.638751 0.330976 2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>-0.001682 0.0046 0.139519 0 -0 0</pose>
+          <mass>2.24675</mass>
+          <inertia>
+            <ixx>0.0166775</ixx>
+            <ixy>0.000184012</ixy>
+            <ixz>0.000186469</ixz>
+            <iyy>0.0167549</iyy>
+            <iyz>-0.000647332</iyz>
+            <izz>0.00374662</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_upper_forearm_collision'>
+          <pose frame=''>0 0 -0.044 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.088</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_upper_forearm_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/upper_forearm/W0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_w0' type='revolute'>
+        <child>left_upper_forearm</child>
+        <parent>left_lower_elbow</parent>
+        <axis>
+          <xyz>0.707105 0.707108 0</xyz>
+          <limit>
+            <lower>-3.059</lower>
+            <upper>3.059</upper>
+            <effort>15</effort>
+            <velocity>4</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_lower_forearm'>
+        <pose frame=''>0.635163 0.830166 0.320976 -1.5708 -0 0.7854</pose>
+        <inertial>
+          <pose frame=''>0.06041 0.00697 0.006 0 -0 0</pose>
+          <mass>1.60979</mass>
+          <inertia>
+            <ixx>0.00387607</ixx>
+            <ixy>-0.000443848</ixy>
+            <ixz>-0.00021115</ixz>
+            <iyy>0.00700538</iyy>
+            <iyz>0.000153481</iyz>
+            <izz>0.00552755</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_lower_forearm_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_lower_forearm_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/lower_forearm/W1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_w1' type='revolute'>
+        <child>left_lower_forearm</child>
+        <parent>left_upper_forearm</parent>
+        <axis>
+          <xyz>-0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-1.5708</lower>
+            <upper>2.094</upper>
+            <effort>15</effort>
+            <velocity>4</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='left_wrist'>
+        <pose frame=''>0.71717 0.912173 0.320976 2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>0.003318 0.000616 0.079435 0 -0 0</pose>
+          <mass>0.84268</mass>
+          <inertia>
+            <ixx>0.00285059</ixx>
+            <ixy>7.17373e-06</ixy>
+            <ixz>2.52032e-05</ixz>
+            <iyy>0.00291735</iyy>
+            <iyz>2.17353e-05</iyz>
+            <izz>0.000560608</izz>
+          </inertia>
+        </inertial>
+        <collision name='left_wrist_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.165</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='left_wrist_fixed_joint_lump__left_hand_collision_1'>
+          <pose frame=''>0 0 0.09035 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.0464</length>
+              <radius>0.04</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='left_wrist_fixed_joint_lump__left_gripper_base_collision_2'>
+          <pose frame=''>0 0 0.13855 1.5708 -0 3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.029</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='left_wrist_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/wrist/W2.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='left_wrist_fixed_joint_lump__left_gripper_base_visual_1'>
+          <pose frame=''>0 0 0.13855 1.5708 -0 3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/electric_gripper_base.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='left_wrist_fixed_joint_lump__left_hand_accelerometer_visual_2'>
+          <pose frame=''>0.00198 0.000133 0.09895 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.01 0.01</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='left_wrist_fixed_joint_lump__left_hand_camera_visual_3'>
+          <pose frame=''>0.03825 0.012 0.128905 0 0 -1.5708</pose>
+          <geometry>
+            <cylinder>
+              <length>0.01</length>
+              <radius>0.02</radius>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='left_wrist_fixed_joint_lump__left_hand_range_visual_4'>
+          <pose frame=''>0.032 -0.020245 0.14235 3.14159 -1.57079 1.57079</pose>
+          <geometry>
+            <box>
+              <size>0.005 0.02 0.005</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay/>
+        <sensor name='left_hand_camera' type='camera'>
+          <update_rate>30</update_rate>
+          <camera name='left_hand_camera'>
+            <pose frame=''>0 0 0 -1.57079 -1.57079 3.14159</pose>
+            <horizontal_fov>1.39626</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>0.0</updateRate>
+            <cameraName>left_hand_camera</cameraName>
+            <imageTopicName>image</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>left_hand_camera</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <robotNamespace>/cameras</robotNamespace>
+          </plugin>
+          <pose frame=''>0.03825 0.012 0.128905 0 0 -1.5708</pose>
+        </sensor>
+        <gravity>0</gravity>
+        <velocity_decay/>
+        <sensor name='ir_left' type='ray'>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>1</samples>
+                <resolution>1</resolution>
+                <min_angle>-0.5</min_angle>
+                <max_angle>0.5</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.004</min>
+              <max>0.4</max>
+            </range>
+          </ray>
+          <plugin name='plugin_4' filename='libgazebo_ros_laser.so'>
+            <gaussianNoise>0.005</gaussianNoise>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>100</updateRate>
+            <topicName>/sim/laserscan/left_hand_range/state</topicName>
+            <frameName>left_hand_range</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <always_on>1</always_on>
+          <update_rate>100</update_rate>
+          <pose frame=''>0.032 -0.020245 0.14235 3.14159 -1.57079 1.57079</pose>
+        </sensor>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='left_w2' type='revolute'>
+        <child>left_wrist</child>
+        <parent>left_lower_forearm</parent>
+        <axis>
+          <xyz>0.707105 0.707108 0</xyz>
+          <limit>
+            <lower>-3.059</lower>
+            <upper>3.059</upper>
+            <effort>15</effort>
+            <velocity>4</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='l_gripper_l_finger'>
+        <pose frame=''>0.830342 1.02322 0.320976 2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>0 0.00575 0.037567 0 -0 3.14159</pose>
+          <mass>0.03</mass>
+          <inertia>
+            <ixx>0.0200867</ixx>
+            <ixy>4.0989e-19</ixy>
+            <ixz>-2.67795e-18</ixz>
+            <iyy>0.0200847</iyy>
+            <iyz>1.29605e-05</iyz>
+            <izz>0.020002</izz>
+          </inertia>
+        </inertial>
+        <collision name='l_gripper_l_finger_collision'>
+          <pose frame=''>0 0.01725 0.0615 0 -0 3.14159</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.0135 0.1127</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='l_gripper_l_finger_collision_1'>
+          <pose frame=''>-0.005 -0.003 0.0083 0 -0 3.14159</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.05 0.017</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='l_gripper_l_finger_tip_collision_2'>
+          <pose frame=''>0 0.01275 0.0977 0 -0 -3.14159</pose>
+          <geometry>
+            <box>
+              <size>0.042 0.0065 0.037</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='l_gripper_l_finger_visual'>
+          <pose frame=''>0 0 0 0 -0 3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/extended_narrow.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='l_gripper_l_finger_tip_visual_1'>
+          <pose frame=''>0 0.01725 0.1127 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/paddle_tip.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='l_gripper_l_finger_joint' type='prismatic'>
+        <child>l_gripper_l_finger</child>
+        <parent>left_wrist</parent>
+        <axis>
+          <xyz>-0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.020833</upper>
+            <effort>20</effort>
+            <velocity>5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='l_gripper_r_finger'>
+        <pose frame=''>0.828221 1.02535 0.320976 2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>0 -0.00575 0.037567 0 -0 0</pose>
+          <mass>0.03</mass>
+          <inertia>
+            <ixx>0.0200867</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0200847</iyy>
+            <iyz>1.29605e-05</iyz>
+            <izz>0.020002</izz>
+          </inertia>
+        </inertial>
+        <collision name='l_gripper_r_finger_collision'>
+          <pose frame=''>0 -0.01725 0.0615 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.0135 0.1127</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='l_gripper_r_finger_collision_1'>
+          <pose frame=''>0.005 0.003 0.0083 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.05 0.017</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='l_gripper_r_finger_tip_collision_2'>
+          <pose frame=''>0 -0.01275 0.0977 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.042 0.0065 0.037</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='l_gripper_r_finger_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/extended_narrow.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='l_gripper_r_finger_tip_visual_1'>
+          <pose frame=''>0 -0.01725 0.1127 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/paddle_tip.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='l_gripper_r_finger_joint' type='prismatic'>
+        <child>l_gripper_r_finger</child>
+        <parent>left_wrist</parent>
+        <axis>
+          <xyz>-0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-0.020833</lower>
+            <upper>0</upper>
+            <effort>20</effort>
+            <velocity>5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_upper_shoulder'>
+        <pose frame=''>0.064027 -0.259027 0.129626 0 0 -0.7854</pose>
+        <inertial>
+          <pose frame=''>0.01783 0.00086 0.19127 0 -0 0</pose>
+          <mass>5.70044</mass>
+          <inertia>
+            <ixx>0.047091</ixx>
+            <ixy>0.000127876</ixy>
+            <ixz>0.0061487</ixz>
+            <iyy>0.0376698</iyy>
+            <iyz>0.000780869</iyz>
+            <izz>0.0359599</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_upper_shoulder_collision'>
+          <pose frame=''>0 0 0.1361 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.2722</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_upper_shoulder_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/upper_shoulder/S0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_s0' type='revolute'>
+        <child>right_upper_shoulder</child>
+        <parent>base</parent>
+        <axis>
+          <xyz>0 0 1</xyz>
+          <limit>
+            <lower>-1.70168</lower>
+            <upper>1.70168</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_lower_shoulder'>
+        <pose frame=''>0.112818 -0.307818 0.399976 -1.5708 -0 -0.7854</pose>
+        <inertial>
+          <pose frame=''>0.068451 0.00269 -0.00529 0 -0 0</pose>
+          <mass>3.22708</mass>
+          <inertia>
+            <ixx>0.0117521</ixx>
+            <ixy>-0.000300954</ixy>
+            <ixz>0.00207674</ixz>
+            <iyy>0.0278861</iyy>
+            <iyz>-0.000188219</iyz>
+            <izz>0.0207877</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_lower_shoulder_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.12</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='right_lower_shoulder_fixed_joint_lump__right_upper_elbow_visual_collision_1'>
+          <pose frame=''>0.2435 -0 0 1.5708 -0 1.5708</pose>
+          <geometry>
+            <cylinder>
+              <length>0.273</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_lower_shoulder_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/lower_shoulder/S1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_s1' type='revolute'>
+        <child>right_lower_shoulder</child>
+        <parent>right_upper_shoulder</parent>
+        <axis>
+          <xyz>0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-2.147</lower>
+            <upper>1.047</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_upper_elbow'>
+        <pose frame=''>0.184942 -0.379943 0.399976 -2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>-0.00276 0.00132 0.18086 0 -0 0</pose>
+          <mass>4.31272</mass>
+          <inertia>
+            <ixx>0.0266173</ixx>
+            <ixy>0.000292706</ixy>
+            <ixz>0.0039219</ixz>
+            <iyy>0.0284436</iyy>
+            <iyz>0.00108389</iyz>
+            <izz>0.0124801</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_upper_elbow_collision'>
+          <pose frame=''>0 0 -0.0535 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.107</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_upper_elbow_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/upper_elbow/E0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_e0' type='revolute'>
+        <child>right_upper_elbow</child>
+        <parent>right_lower_shoulder</parent>
+        <axis>
+          <xyz>0.707105 -0.707108 0</xyz>
+          <limit>
+            <lower>-3.05418</lower>
+            <upper>3.05418</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_lower_elbow'>
+        <pose frame=''>0.370501 -0.565502 0.330976 -1.5708 -0 -0.7854</pose>
+        <inertial>
+          <pose frame=''>0.026113 0.00159 -0.01117 0 -0 0</pose>
+          <mass>2.07216</mass>
+          <inertia>
+            <ixx>0.00711585</ixx>
+            <ixy>0.000360372</ixy>
+            <ixz>0.00074588</ixz>
+            <iyy>0.0131827</iyy>
+            <iyz>-0.000196632</iyz>
+            <izz>0.00926891</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_lower_elbow_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='right_lower_elbow_fixed_joint_lump__right_upper_forearm_visual_collision_1'>
+          <pose frame=''>0.224 -0 0 1.5708 -0 1.5708</pose>
+          <geometry>
+            <cylinder>
+              <length>0.272</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_lower_elbow_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/lower_elbow/E1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_e1' type='revolute'>
+        <child>right_lower_elbow</child>
+        <parent>right_upper_elbow</parent>
+        <axis>
+          <xyz>0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-0.05</lower>
+            <upper>2.618</upper>
+            <effort>50</effort>
+            <velocity>1.5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_upper_forearm'>
+        <pose frame=''>0.44375 -0.638751 0.330976 -2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>-0.001682 0.0046 0.139519 0 -0 0</pose>
+          <mass>2.24675</mass>
+          <inertia>
+            <ixx>0.0166775</ixx>
+            <ixy>0.000184012</ixy>
+            <ixz>0.000186469</ixz>
+            <iyy>0.0167549</iyy>
+            <iyz>-0.000647332</iyz>
+            <izz>0.00374662</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_upper_forearm_collision'>
+          <pose frame=''>0 0 -0.044 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.088</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_upper_forearm_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/upper_forearm/W0.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_w0' type='revolute'>
+        <child>right_upper_forearm</child>
+        <parent>right_lower_elbow</parent>
+        <axis>
+          <xyz>0.707105 -0.707108 0</xyz>
+          <limit>
+            <lower>-3.059</lower>
+            <upper>3.059</upper>
+            <effort>15</effort>
+            <velocity>4</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_lower_forearm'>
+        <pose frame=''>0.635163 -0.830166 0.320976 -1.5708 -0 -0.7854</pose>
+        <inertial>
+          <pose frame=''>0.06041 0.00697 0.006 0 -0 0</pose>
+          <mass>1.60979</mass>
+          <inertia>
+            <ixx>0.00387607</ixx>
+            <ixy>-0.000443848</ixy>
+            <ixz>-0.00021115</ixz>
+            <iyy>0.00700538</iyy>
+            <iyz>0.000153481</iyz>
+            <izz>0.00552755</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_lower_forearm_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_lower_forearm_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/lower_forearm/W1.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_w1' type='revolute'>
+        <child>right_lower_forearm</child>
+        <parent>right_upper_forearm</parent>
+        <axis>
+          <xyz>0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-1.5708</lower>
+            <upper>2.094</upper>
+            <effort>15</effort>
+            <velocity>4</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='right_wrist'>
+        <pose frame=''>0.71717 -0.912173 0.320976 -2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>0.003318 0.000616 0.079435 0 -0 0</pose>
+          <mass>0.84268</mass>
+          <inertia>
+            <ixx>0.00285059</ixx>
+            <ixy>7.17373e-06</ixy>
+            <ixz>2.52032e-05</ixz>
+            <iyy>0.00291735</iyy>
+            <iyz>2.17353e-05</iyz>
+            <izz>0.000560608</izz>
+          </inertia>
+        </inertial>
+        <collision name='right_wrist_collision'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.165</length>
+              <radius>0.06</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='right_wrist_fixed_joint_lump__right_hand_collision_1'>
+          <pose frame=''>0 0 0.09035 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.0464</length>
+              <radius>0.04</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='right_wrist_fixed_joint_lump__right_gripper_base_collision_2'>
+          <pose frame=''>0 0 0.13855 1.5708 -0 3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.1</length>
+              <radius>0.029</radius>
+            </cylinder>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='right_wrist_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/baxter_description/meshes/wrist/W2.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='right_wrist_fixed_joint_lump__right_gripper_base_visual_1'>
+          <pose frame=''>0 0 0.13855 1.5708 -0 3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/electric_gripper_base.DAE</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <visual name='right_wrist_fixed_joint_lump__right_hand_accelerometer_visual_2'>
+          <pose frame=''>0.00198 0.000133 0.09895 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.01 0.01</size>
+            </box>
+          </geometry>
+        </visual>
+        <visual name='right_wrist_fixed_joint_lump__right_hand_camera_visual_3'>
+          <pose frame=''>0.03825 0.012 0.128905 0 0 -1.5708</pose>
+          <geometry>
+            <cylinder>
+              <length>0.01</length>
+              <radius>0.02</radius>
+            </cylinder>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='right_wrist_fixed_joint_lump__right_hand_range_visual_4'>
+          <pose frame=''>0.032 -0.020245 0.14235 3.14159 -1.57079 1.57079</pose>
+          <geometry>
+            <box>
+              <size>0.005 0.02 0.005</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <velocity_decay/>
+        <sensor name='right_hand_camera' type='camera'>
+          <update_rate>30</update_rate>
+          <camera name='right_hand_camera'>
+            <pose frame=''>0 0 0 -1.57079 -1.57079 3.14159</pose>
+            <horizontal_fov>1.39626</horizontal_fov>
+            <image>
+              <width>800</width>
+              <height>800</height>
+              <format>R8G8B8</format>
+            </image>
+            <clip>
+              <near>0.02</near>
+              <far>300</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0</mean>
+              <stddev>0.007</stddev>
+            </noise>
+          </camera>
+          <plugin name='camera_controller' filename='libgazebo_ros_camera.so'>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>0.0</updateRate>
+            <cameraName>right_hand_camera</cameraName>
+            <imageTopicName>image</imageTopicName>
+            <cameraInfoTopicName>camera_info</cameraInfoTopicName>
+            <frameName>right_hand_camera</frameName>
+            <hackBaseline>0.07</hackBaseline>
+            <distortionK1>0.0</distortionK1>
+            <distortionK2>0.0</distortionK2>
+            <distortionK3>0.0</distortionK3>
+            <distortionT1>0.0</distortionT1>
+            <distortionT2>0.0</distortionT2>
+            <robotNamespace>/cameras</robotNamespace>
+          </plugin>
+          <pose frame=''>0.03825 0.012 0.128905 0 0 -1.5708</pose>
+        </sensor>
+        <gravity>0</gravity>
+        <velocity_decay/>
+        <sensor name='ir_right' type='ray'>
+          <ray>
+            <scan>
+              <horizontal>
+                <samples>1</samples>
+                <resolution>1</resolution>
+                <min_angle>-0.5</min_angle>
+                <max_angle>0.5</max_angle>
+              </horizontal>
+              <vertical>
+                <samples>1</samples>
+                <min_angle>0</min_angle>
+                <max_angle>0</max_angle>
+              </vertical>
+            </scan>
+            <range>
+              <min>0.004</min>
+              <max>0.4</max>
+            </range>
+          </ray>
+          <plugin name='plugin_3' filename='libgazebo_ros_laser.so'>
+            <gaussianNoise>0.005</gaussianNoise>
+            <alwaysOn>1</alwaysOn>
+            <updateRate>100</updateRate>
+            <topicName>/sim/laserscan/right_hand_range/state</topicName>
+            <frameName>right_hand_range</frameName>
+            <robotNamespace>/</robotNamespace>
+          </plugin>
+          <always_on>1</always_on>
+          <update_rate>100</update_rate>
+          <pose frame=''>0.032 -0.020245 0.14235 3.14159 -1.57079 1.57079</pose>
+        </sensor>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='right_w2' type='revolute'>
+        <child>right_wrist</child>
+        <parent>right_lower_forearm</parent>
+        <axis>
+          <xyz>0.707105 -0.707108 0</xyz>
+          <limit>
+            <lower>-3.059</lower>
+            <upper>3.059</upper>
+            <effort>15</effort>
+            <velocity>4</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='r_gripper_l_finger'>
+        <pose frame=''>0.828221 -1.02535 0.320976 -2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>0 0.00575 0.037567 0 -0 3.14159</pose>
+          <mass>0.03</mass>
+          <inertia>
+            <ixx>0.0200867</ixx>
+            <ixy>4.0989e-19</ixy>
+            <ixz>-2.67795e-18</ixz>
+            <iyy>0.0200847</iyy>
+            <iyz>1.29605e-05</iyz>
+            <izz>0.020002</izz>
+          </inertia>
+        </inertial>
+        <collision name='r_gripper_l_finger_collision'>
+          <pose frame=''>0 0.01725 0.0615 0 -0 3.14159</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.0135 0.1127</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='r_gripper_l_finger_collision_1'>
+          <pose frame=''>-0.005 -0.003 0.0083 0 -0 3.14159</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.05 0.017</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='r_gripper_l_finger_tip_collision_2'>
+          <pose frame=''>0 0.01275 0.0977 0 -0 -3.14159</pose>
+          <geometry>
+            <cylinder>
+              <length>0.037</length>
+              <radius>0.008</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='r_gripper_l_finger_visual'>
+          <pose frame=''>0 0 0 0 -0 3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/extended_narrow.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='r_gripper_l_finger_tip_visual_1'>
+          <pose frame=''>0 0.01725 0.1127 0 -0 -3.14159</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/half_round_tip.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='r_gripper_l_finger_joint' type='prismatic'>
+        <child>r_gripper_l_finger</child>
+        <parent>right_wrist</parent>
+        <axis>
+          <xyz>0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>0</lower>
+            <upper>0.020833</upper>
+            <effort>20</effort>
+            <velocity>5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <link name='r_gripper_r_finger'>
+        <pose frame=''>0.830342 -1.02322 0.320976 -2.35619 1.57079 3.14159</pose>
+        <inertial>
+          <pose frame=''>0 -0.00575 0.037567 0 -0 0</pose>
+          <mass>0.03</mass>
+          <inertia>
+            <ixx>0.0200867</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0200847</iyy>
+            <iyz>1.29605e-05</iyz>
+            <izz>0.020002</izz>
+          </inertia>
+        </inertial>
+        <collision name='r_gripper_r_finger_collision'>
+          <pose frame=''>0 -0.01725 0.0615 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.0135 0.1127</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='r_gripper_r_finger_collision_1'>
+          <pose frame=''>0.005 0.003 0.0083 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.01 0.05 0.017</size>
+            </box>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <collision name='r_gripper_r_finger_tip_collision_2'>
+          <pose frame=''>0 -0.01275 0.0977 0 -0 0</pose>
+          <geometry>
+            <cylinder>
+              <length>0.037</length>
+              <radius>0.008</radius>
+            </cylinder>
+          </geometry>
+          <surface>
+            <contact>
+              <ode>
+                <kp>100000</kp>
+                <kd>1</kd>
+              </ode>
+            </contact>
+            <friction>
+              <ode>
+                <mu>1000</mu>
+                <mu2>1000</mu2>
+                <fdir1>0 0 1</fdir1>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='r_gripper_r_finger_visual'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/extended_narrow.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <visual name='r_gripper_r_finger_tip_visual_1'>
+          <pose frame=''>0 -0.01725 0.1127 0 -0 0</pose>
+          <geometry>
+            <mesh>
+              <scale>1 1 1</scale>
+              <uri>/home/adam/ros_ws/src/baxter_common/rethink_ee_description/meshes/electric_gripper/fingers/half_round_tip.DAE</uri>
+            </mesh>
+          </geometry>
+          <material>
+            <script>
+              <uri>__default__</uri>
+              <name>__default__</name>
+            </script>
+          </material>
+        </visual>
+        <gravity>1</gravity>
+        <velocity_decay/>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <joint name='r_gripper_r_finger_joint' type='prismatic'>
+        <child>r_gripper_r_finger</child>
+        <parent>right_wrist</parent>
+        <axis>
+          <xyz>0.707108 0.707105 0</xyz>
+          <limit>
+            <lower>-0.020833</lower>
+            <upper>0</upper>
+            <effort>20</effort>
+            <velocity>5</velocity>
+          </limit>
+          <dynamics>
+            <damping>0.7</damping>
+            <friction>0</friction>
+            <spring_reference>0</spring_reference>
+            <spring_stiffness>0</spring_stiffness>
+          </dynamics>
+          <use_parent_model_frame>1</use_parent_model_frame>
+        </axis>
+        <physics>
+          <ode>
+            <implicit_spring_damper>1</implicit_spring_damper>
+            <cfm_damping>1</cfm_damping>
+            <limit>
+              <cfm>0</cfm>
+              <erp>0.2</erp>
+            </limit>
+          </ode>
+        </physics>
+      </joint>
+      <static>0</static>
+      <plugin name='baxter_ros_control' filename='libbaxter_gazebo_ros_control.so'>
+        <robotNamespace>/robot</robotNamespace>
+      </plugin>
+      <pose frame=''>0 0 0.93 0 -0 0</pose>
+    </model>
+    <model name='cafe_table'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='surface'>
+          <pose frame=''>0 0 0.755 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.913 0.913 0.04</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='column'>
+          <pose frame=''>0 0 0.37 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.042 0.042 0.74</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <collision name='base'>
+          <pose frame=''>0 0 0.02 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>0.56 0.56 0.04</size>
+            </box>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://cafe_table/meshes/cafe_table.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>0.763924 0.053564 0 0 -0 0</pose>
+    </model>
+    <model name='monopoly'>
+      <static>1</static>
+      <link name='link'>
+        <inertial>
+          <pose frame=''>1 0 1 0 -0 0</pose>
+          <mass>0.25</mass>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://monopoly/meshes/myMonopoly.dae</uri>
+              <scale>1.75 1.75 1.75</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://monopoly/meshes/myMonopoly.dae</uri>
+              <scale>1.75 1.75 1.75</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>1.39294 1.31128 0 0 -0 0</pose>
+    </model>
+    <model name='redDie'>
+      <static>0</static>
+      <link name='link'>
+        <inertial>
+          <mass>0.1</mass>
+          <inertia>
+            <ixx>0.0127094</ixx>
+            <ixy>0</ixy>
+            <ixz>0</ixz>
+            <iyy>0.0127094</iyy>
+            <iyz>0</iyz>
+            <izz>0.0127094</izz>
+          </inertia>
+        </inertial>
+        <collision name='collision'>
+          <geometry>
+            <mesh>
+              <uri>model://redDie/meshes/redDie.dae</uri>
+              <scale>1.25 1.25 1.25</scale>
+            </mesh>
+          </geometry>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://redDie/meshes/redDie.dae</uri>
+              <scale>1.25 1.25 1.25</scale>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose frame=''>-0.103281 -0.876962 0 0 -0 0</pose>
+    </model>
+    <state world_name='default'>
+      <sim_time>2716 964000000</sim_time>
+      <real_time>69 808453562</real_time>
+      <wall_time>1670805904 71470526</wall_time>
+      <iterations>68459</iterations>
+      <model name='baxter'>
+        <pose frame=''>0 -0 0.93 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='base'>
+          <pose frame=''>0 -0 0.93 0 -0 0</pose>
+          <velocity>-0 0 0 0 -0 0</velocity>
+          <acceleration>0 -0 1e-06 1e-06 -5e-06 -3e-06</acceleration>
+          <wrench>2.7e-05 -1.5e-05 7.1e-05 0 -0 0</wrench>
+        </link>
+        <link name='head'>
+          <pose frame=''>0.06 -0 1.616 0 0 -0.000175</pose>
+          <velocity>0 0 -0 0 0 -1e-06</velocity>
+          <acceleration>-1e-06 -3e-06 0 5e-06 -2e-06 1.6e-05</acceleration>
+          <wrench>-1e-06 -3e-06 0 0 -0 0</wrench>
+        </link>
+        <link name='l_gripper_l_finger'>
+          <pose frame=''>0.240919 0.39729 0.353444 3.06779 0.038306 -0.732289</pose>
+          <velocity>2.4e-05 2.4e-05 -1e-06 -0.000175 -8.8e-05 -0.000823</velocity>
+          <acceleration>-0.001453 -0.010868 5.3e-05 -0.027557 0.002295 -0.006416</acceleration>
+          <wrench>-4.4e-05 -0.000326 2e-06 0 -0 0</wrench>
+        </link>
+        <link name='l_gripper_r_finger'>
+          <pose frame=''>0.266614 0.426035 0.35059 3.06779 0.038305 -0.732289</pose>
+          <velocity>1.1e-05 -4.4e-05 1.6e-05 -0.000175 -9e-05 -0.000822</velocity>
+          <acceleration>0.008012 0.000614 -0.002761 -0.028049 0.002477 -0.006329</acceleration>
+          <wrench>0.00024 1.8e-05 -8.3e-05 0 -0 0</wrench>
+        </link>
+        <link name='left_lower_elbow'>
+          <pose frame=''>0.169548 0.432096 0.984619 2.92732 1.30954 -0.127938</pose>
+          <velocity>-5e-06 9e-06 2e-06 2.5e-05 -5.9e-05 0.000211</velocity>
+          <acceleration>-0.00043 -0.000139 -3e-05 -0.006384 2.2e-05 -0.004043</acceleration>
+          <wrench>-0.00089 -0.000287 -6.3e-05 0 -0 0</wrench>
+        </link>
+        <link name='left_lower_forearm'>
+          <pose frame=''>0.275099 0.419706 0.625595 -1.19531 1.48765 -2.78101</pose>
+          <velocity>1.9e-05 4.4e-05 8e-06 -6.6e-05 -4.8e-05 0.000548</velocity>
+          <acceleration>-0.000413 -0.003916 0.000153 -0.016815 0.011741 0.083206</acceleration>
+          <wrench>-0.000664 -0.006304 0.000247 0 -0 0</wrench>
+        </link>
+        <link name='left_lower_shoulder'>
+          <pose frame=''>0.089294 0.323236 1.32998 -1.5708 1.047 1.1959</pose>
+          <velocity>-5e-06 2e-06 -0 0 -0 8e-05</velocity>
+          <acceleration>-0.00013 4.3e-05 1.2e-05 -0.000245 -0.000565 0.002081</acceleration>
+          <wrench>-0.000419 0.000139 3.9e-05 0 -0 0</wrench>
+        </link>
+        <link name='left_upper_elbow'>
+          <pose frame=''>0.107975 0.370709 1.24165 -2.85799 0.446509 -1.35198</pose>
+          <velocity>-9e-06 4e-06 -0 -2.5e-05 -6.4e-05 0.000198</velocity>
+          <acceleration>-0.000255 9.1e-05 2.1e-05 0.000667 0.002431 -0.00164</acceleration>
+          <wrench>-0.001099 0.000393 9.1e-05 0 -0 0</wrench>
+        </link>
+        <link name='left_upper_forearm'>
+          <pose frame=''>0.196086 0.428682 0.884544 3.11008 -0.259394 -0.005645</pose>
+          <velocity>2e-06 1.8e-05 4e-06 -6.5e-05 -4.7e-05 0.000548</velocity>
+          <acceleration>-0.00029 -0.002153 0.000111 -0.037797 0.004899 0.07085</acceleration>
+          <wrench>-0.000651 -0.004837 0.00025 0 -0 0</wrench>
+        </link>
+        <link name='left_upper_shoulder'>
+          <pose frame=''>0.064027 0.259027 1.05963 0 2e-06 1.1959</pose>
+          <velocity>0 0 -0 0 -0 7.9e-05</velocity>
+          <acceleration>-3.3e-05 -9e-06 6e-06 0.000228 -0.000194 0.001382</acceleration>
+          <wrench>-0.000189 -5.3e-05 3.5e-05 0 -0 0</wrench>
+        </link>
+        <link name='left_wrist'>
+          <pose frame=''>0.266087 0.416308 0.51002 3.06779 0.038306 -0.732289</pose>
+          <velocity>2.7e-05 3.2e-05 8e-06 -0.000175 -8.8e-05 -0.000823</velocity>
+          <acceleration>-0.0011 -0.007978 0.000196 -0.028564 0.001993 -0.016544</acceleration>
+          <wrench>-0.000927 -0.006723 0.000165 0 -0 0</wrench>
+        </link>
+        <link name='r_gripper_l_finger'>
+          <pose frame=''>0.160058 -0.418964 0.33103 -3.06663 0.068266 -1.8317</pose>
+          <velocity>0.000112 -4.4e-05 8e-06 -5.5e-05 -1.4e-05 0.000655</velocity>
+          <acceleration>-0.028961 0.008309 -0.002433 0.001121 -0.004148 -0</acceleration>
+          <wrench>-0.000869 0.000249 -7.3e-05 0 -0 0</wrench>
+        </link>
+        <link name='r_gripper_r_finger'>
+          <pose frame=''>0.177209 -0.423638 0.332368 -3.06663 0.068267 -1.8317</pose>
+          <velocity>9.8e-05 -2.8e-05 8e-06 -5.4e-05 -1.3e-05 0.000655</velocity>
+          <acceleration>-0.024844 0.007157 -0.002004 0.001011 -0.004146 1.6e-05</acceleration>
+          <wrench>-0.000745 0.000215 -6e-05 0 -0 0</wrench>
+        </link>
+        <link name='right_lower_elbow'>
+          <pose frame=''>0.153808 -0.428255 0.979921 -0.735936 1.54827 -0.289226</pose>
+          <velocity>-2e-06 -1e-06 -0 5e-06 3e-06 -1.1e-05</velocity>
+          <acceleration>-1.1e-05 6.2e-05 -9e-05 -0.001079 -0.000974 -0.000471</acceleration>
+          <wrench>-2.3e-05 0.000128 -0.000186 0 -0 0</wrench>
+        </link>
+        <link name='right_lower_forearm'>
+          <pose frame=''>0.153977 -0.436772 0.605594 -1.75251 1.46945 0.476562</pose>
+          <velocity>-2e-06 0 -0 -4e-06 1.2e-05 0.000107</velocity>
+          <acceleration>0.000449 -0.00025 -0.000105 0.001446 -0.004887 -0.005842</acceleration>
+          <wrench>0.000722 -0.000402 -0.000169 0 -0 0</wrench>
+        </link>
+        <link name='right_lower_shoulder'>
+          <pose frame=''>0.09563 -0.320366 1.32998 -1.5708 1.047 -1.09505</pose>
+          <velocity>-1e-06 -0 -0 0 -0 -1.2e-05</velocity>
+          <acceleration>1e-06 -1.5e-05 -2.3e-05 3.9e-05 -8.4e-05 -0.000117</acceleration>
+          <wrench>4e-06 -4.8e-05 -7.3e-05 0 -0 0</wrench>
+        </link>
+        <link name='right_upper_elbow'>
+          <pose frame=''>0.118995 -0.365717 1.24165 3.12232 0.523463 2.00799</pose>
+          <velocity>-1e-06 -1e-06 -0 0 0 -1.2e-05</velocity>
+          <acceleration>-2.3e-05 4.8e-05 -8.8e-05 0.000344 -8e-06 -5.2e-05</acceleration>
+          <wrench>-9.9e-05 0.000208 -0.000379 0 -0 0</wrench>
+        </link>
+        <link name='right_upper_forearm'>
+          <pose frame=''>0.156045 -0.42892 0.876358 -3.1233 0.01316 -2.48399</pose>
+          <velocity>-2e-06 -0 -0 3e-06 3e-06 0.000107</velocity>
+          <acceleration>0.000158 -0.000204 -9.9e-05 -0.001214 -0.000465 -0.003904</acceleration>
+          <wrench>0.000355 -0.000459 -0.000223 0 -0 0</wrench>
+        </link>
+        <link name='right_upper_shoulder'>
+          <pose frame=''>0.064028 -0.259028 1.05963 0 -2e-06 -1.09505</pose>
+          <velocity>0 -0 -0 -0 -0 -1.2e-05</velocity>
+          <acceleration>1.8e-05 -5e-05 -3e-06 -9.8e-05 -6.1e-05 6e-06</acceleration>
+          <wrench>0.000105 -0.000282 -1.7e-05 0 -0 0</wrench>
+        </link>
+        <link name='right_wrist'>
+          <pose frame=''>0.164402 -0.43139 0.490214 -3.06663 0.068267 -1.8317</pose>
+          <velocity>-4e-06 1e-06 -0 -5.4e-05 -1.4e-05 0.000655</velocity>
+          <acceleration>0.000976 -0.00014 -3.2e-05 0.000853 -0.004099 0.00036</acceleration>
+          <wrench>0.000822 -0.000118 -2.7e-05 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='cafe_table'>
+        <pose frame=''>0.841787 -0.000253 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.841787 -0.000253 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='ground_plane'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0 0 0 0 -0 0</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='monopoly'>
+        <pose frame=''>0.833907 -0.008489 0.779 0 -0 3.13686</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.833907 -0.008489 0.779 0 -0 3.13686</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 0 0 -0 0</acceleration>
+          <wrench>0 0 0 0 -0 0</wrench>
+        </link>
+      </model>
+      <model name='redDie'>
+        <pose frame=''>0.586166 -0.036989 0.791294 8e-06 -2e-06 -0.000103</pose>
+        <scale>1 1 1</scale>
+        <link name='link'>
+          <pose frame=''>0.586166 -0.036989 0.791294 8e-06 -2e-06 -0.000103</pose>
+          <velocity>0 0 0 0 -0 0</velocity>
+          <acceleration>0 0 -9.8 0 -0 0</acceleration>
+          <wrench>0 0 -0.98 0 -0 0</wrench>
+        </link>
+      </model>
+      <light name='sun'>
+        <pose frame=''>0 0 10 0 -0 0</pose>
+      </light>
+    </state>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose frame=''>1.38605 -0.702273 2.03322 -0 0.655646 2.18418</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>
