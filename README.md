@@ -24,8 +24,7 @@ Asset placement:
 - Launch files: ~/workspace/src/baxter_simulator/baxter_gazebo/launch
 
 
-To run the simulation:
-In terminal 1:
+To run the simulation, open a terminal and enter:
 ```
 cd ~/workspace
 catkin_make
