@@ -31,7 +31,7 @@ Class: CS425/426
 				<button @click="disconnect" class="btn btn-danger" v-if="connected">Disconnect!</button>
 				<button @click="connect" class="btn btn-success" v-else>Connect!</button>
 			</div>
-			<div class="col-md-6" style="max-height:200px; overflow:auto;">
+			<div class="col-md-6" style="max-height180px; overflow:auto;">
 				<h3>Log messages</h3>
 				<div>
 					<p v-for="log in logs">
@@ -39,16 +39,17 @@ Class: CS425/426
 					</p>
 				</div>
 			</div>
+			<div class="col-md-4">			
+			<iframe width="560" height="315" src="https://www.youtube.com/embed/deWhe1_OJ9c" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+			</div>
 			<!--Stream Integration-->
-			<div class="row">
-            	<div class="col-md-6 row">
-                	<div class="col-md-12 text-center">
+            	<div class="col-md-2 row">
+                	<div class="col-md-2 text-center">
                 	</div>
 				</div>
-				<div class="col-md-6">
+				<div class="col-md-2">
 					<div id="mjpeg"></div>
 				</div>
-			</div>
 			<!--End Stream-->
 		</div>
 	</div>
