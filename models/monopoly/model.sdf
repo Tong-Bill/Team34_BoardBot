@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+	<model name="monopoly">
+		<static>true</static>
+		<link name="link">
+			<inertial>
+				<pose>1 0 1 0 0 0</pose>
+				<mass>0.25</mass>
+				<!-- <inertia>
+					<ixx>1.8732639</ixx>
+					<ixy>0.0</ixy>
+					<ixz>0.0</ixz>
+					<iyy>1.8732639</iyy>
+					<iyz>0.0</iyz>
+					<izz>3.745375</izz>
+				</inertia> -->
+			</inertial>
+			<collision name="collision">
+				<geometry>
+					<mesh>
+						<uri>model://monopoly/meshes/myMonopoly.dae</uri>
+						<scale>1.75 1.75 1.75</scale>
+					</mesh>
+				</geometry>
+			</collision>
+		
+			<visual name="visual">
+				<geometry>
+					<mesh>
+						<uri>model://monopoly/meshes/myMonopoly.dae</uri>
+						<scale>1.75 1.75 1.75</scale>
+					</mesh>
+				</geometry>
+			</visual>
+		</link>
+	</model>
+</sdf>
