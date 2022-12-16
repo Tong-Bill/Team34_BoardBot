@@ -293,37 +293,51 @@ def main():
 	hover_distance = 0.15 # meters
     # Starting Joint angles for left arm
 	starting_joint_angles = {'left_w0': 0.6699952259595108,
-								'left_w1': 1.030009435085784,
-								'left_w2': -0.4999997247485215,
-								'left_e0': -1.189968899785275,
-								'left_e1': 1.9400238130755056,
-								'left_s0': -0.08000397926829805,
-								'left_s1': -0.9999781166910306}
+                                'left_w1': 1.030009435085784,
+                                'left_w2': -0.4999997247485215,
+                                'left_e0': -1.189968899785275,
+                                'left_e1': 1.9400238130755056,
+                                'left_s0': -0.08000397926829805,
+                                'left_s1': -0.9999781166910306}
 	pnp = PickAndPlace(limb, hover_distance)
     # An orientation for gripper fingers to be overhead and parallel to the obj
 	rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
-	pos1 = [0.7, 0.15, -0.129]
-	pos2 = [0.75, 0.0, -0.129]
-	pos3 = [0.7, 0.15, -0.129]
-	pos4 = [0.75, 0.0, -0.129]
-	block_poses = list()
+
+	# Starting board space
+	board_space = ([0.468, 0.363, -0.14]) # Go
 	count = 0
+    
     # Move to the desired starting angles
 	pnp.move_to_start(starting_joint_angles)
+    
+    # Move around the monopoly board space by space
 	while not rospy.is_shutdown():
-		if (count % 2) == 0:
-			print("\nPicking...")
-			pnp.pick(pos1, rot)
-			print("\nPlacing...")
-			pnp.place(pos2, rot)
-			count += 1
-		else:
-			print("\nPicking...")
-			pnp.pick(pos4, rot)
-			print("\nPlacing...")
-			pnp.place(pos3, rot)
-			count += 1
+		pnp.pick(board_space, rot) 
+        # count += <dice roll>  
+		count += 1
+		if count >= 40:
+			count -= 40
+			board_space = ([0.468, 0.363, -0.14])
+		elif count == 1 or count == 10:
+			board_space[0] += .095
+		elif count == 11 or count == 20:
+			board_space[1] -= .095
+		elif count == 21 or count == 30:
+			board_space[0] -= .095
+		elif count == 31:
+			board_space[1] += .095
+		elif count > 1 and count < 10:
+			board_space[0] += .07
+		elif count > 11 and count < 20:
+			board_space[1] -= .07
+		elif count > 21 and count < 30:
+			board_space[0] -= .07
+		elif count > 31 and count < 40:
+			board_space[1] += .07
+		
+		pnp.place(board_space, rot)
+  
 	return 0
 
 if __name__ == '__main__':
-	sys.exit(main())
+    sys.exit(main())
