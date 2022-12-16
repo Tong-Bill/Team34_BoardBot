@@ -28,7 +28,7 @@
 				<friction>
 					<ode>
 						<mu>0</mu>
-						<mu2>0</mu2> <!-- Friction on hold, fix later -->
+						<mu2>0</mu2> <!-- Friction subject to change -->
 					</ode>
 				</friction>
 			</collision>
