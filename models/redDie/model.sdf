@@ -3,6 +3,9 @@
 	<model name="redDie">
 		<static>false</static>
 		<link name="link">
+			<gravity>true</gravity>
+			<enable_wind>true</enable_wind>
+			<self_collide>false</self_collide>
 			<inertial>
 				<!-- <pose>1.375 -0.35 0.7845 0 0 0</pose> -->
 				<mass>0.1</mass>
@@ -22,9 +25,17 @@
 						<scale>1.25 1.25 1.25</scale>
 					</mesh>
 				</geometry>
+				<friction>
+					<ode>
+						<mu>0</mu>
+						<mu2>0</mu2> <!-- Friction subject to change -->
+					</ode>
+				</friction>
 			</collision>
 		
 			<visual name="visual">
+				<cast_shadows>true</cast_shadows>
+				<transparency>0</transparency>
 				<geometry>
 					<mesh>
 						<uri>model://redDie/meshes/redDie.dae</uri>
