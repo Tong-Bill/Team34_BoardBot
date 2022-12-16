@@ -27,6 +27,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+""" 
+Team 34: BoardBot
+This file is based on the pick-and-play demo. Modified by Jacob Boe.
+"""
+
+
 """
 Baxter RSDK Inverse Kinematics Pick and Place Demo
 """
@@ -77,9 +83,6 @@ class PickAndPlace(object):
 		self._limb = baxter_interface.Limb(limb)
 		self._gripper = baxter_interface.Gripper(limb)
 		ns = "ExternalTools/" + limb + "/PositionKinematicsNode/IKService"
-		#self._iksvc = rospy.ServiceProxy(ns, SolvePositionIK)
-		#rospy.wait_for_service(ns, 5.0)
-        # verify robot is enabled
 		print("Getting robot state... ")
 		self._rs = baxter_interface.RobotEnable(baxter_interface.CHECK_VERSION)
 		self._init_state = self._rs.state().enabled
