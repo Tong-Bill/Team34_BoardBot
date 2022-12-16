@@ -10,14 +10,14 @@
 			<inertial>
 				<pose>1 0 1 0 0 0</pose>
 				<mass>0.25</mass>
-				<!-- <inertia>
+				<inertia>
 					<ixx>1.8732639</ixx>
 					<ixy>0.0</ixy>
 					<ixz>0.0</ixz>
 					<iyy>1.8732639</iyy>
 					<iyz>0.0</iyz>
 					<izz>3.745375</izz>
-				</inertia> -->
+				</inertia>
 			</inertial>
 			<collision name="collision">
 				<geometry>
