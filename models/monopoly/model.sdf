@@ -1,8 +1,12 @@
+<!-- Made by Yee Hong Tham -->
 <?xml version="1.0" ?>
 <sdf version="1.5">
 	<model name="monopoly">
 		<static>true</static>
 		<link name="link">
+			<gravity>true</gravity>
+			<enable_wind>true</enable_wind>
+			<self_collide>false</self_collide>
 			<inertial>
 				<pose>1 0 1 0 0 0</pose>
 				<mass>0.25</mass>
@@ -22,9 +26,18 @@
 						<scale>1.75 1.75 1.75</scale>
 					</mesh>
 				</geometry>
+				<friction>
+					<ode>
+						<mu>0</mu>
+						<mu2>0</mu2> <!-- Friction on hold, fix later -->
+					</ode>
+				</friction>
 			</collision>
 		
 			<visual name="visual">
+				<cast_shadows>true</cast_shadows>
+				<transparency>0</transparency>
+				
 				<geometry>
 					<mesh>
 						<uri>model://monopoly/meshes/myMonopoly.dae</uri>
