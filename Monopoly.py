@@ -7,7 +7,7 @@ Fall 2022/Spring 2023
 This file is a collection of classes used to play the game on Monopoly.
 """
 
-import rospy
+#import rospy
 import math
 import sys
 import os
@@ -47,18 +47,23 @@ class Monopoly():
     def readDice(self):
     # TODO: implement this via computer vision
         doubles = False # set to True based on results: die_1 == die_2
-        if doubles = True:
+        if doubles == True:
             doubleStreak = doubleStreak + 1
         else:
             doubleStreak = 0 # streak broken!
         pass
     
-    def takeTurn(self):
+    def takeTurn(self, num1, num2):
+        print("Beginning my turn")
         if self.turn == 'robot' and not in_Jail:
             # Roll dice
-            self.rollDice()
-            dieResult = self.readDice()
-            next_space = self.current_space + dieResult
+            if num1 and num2:
+                # For testing/debug purposes
+                dieResult = [num1, num2]
+            else:
+                self.rollDice()
+                dieResult = self.readDice()
+            next_space = self.current_space + dieResult[0] + dieResult[1]
 
             # Move piece based on die results
             self.pick(board_spaces[self.current_space], rot) # TODO: migrate this from the demo .py
@@ -177,8 +182,15 @@ class Monopoly():
 class Board():
     def __init__(self):
         # Consider storing board space info in a DB
-        board_spaces = [] # list of all spaces with coords, TODO: possibly rent or other values?
-                          # Initialize all buyable property to 'unclaimed'
+                                #       Name            cost  card_set      rent_list           build_cost
+        board_spaces = [deedCard('Mediterranean Avenue', 60, 'Brown', [2, 4, 10, 30, 90, 160, 250], 50),
+                        ['Baltic Avenue', 60, 'Brown', [4, 8, 20, 60, 180, 320, 450], 50],
+                        ['Reading RailRoad', 200,'RR', [25, 50, 100, 200], 0, False],
+                        ['Oriental Avenue', 100, 'Light Blue', [6, 12, 30, 90, 270, 400, 550], 50],
+                        ['Vermont Avenue', 100, 'Light Blue', [6, 12, 30, 90, 270, 400, 550], 50],
+                        ['Connecticut Avenue', 120, 'Light Blue', [8, 16, 40, 100, 300, 450, 600], 50]] 
+                        # list of all spaces with coords, TODO: possibly rent or other values?
+                        # Initialize all buyable property to 'unclaimed'
         owned = []  # spaces owned by BoardBot
         unclaimed = board_spaces # TODO: trim this to remove unbuyable spaces
         claimed = [] # spaces owned by other players
@@ -193,16 +205,105 @@ class Board():
         tax = 0 # TODO: change
         return tax
 
+    def buySpace(space):
+        if space not in unclaimed:
+            print("Error: land %s cannot be bought" % space)
+        else:
+            # TODO: deduct cost from balance
+            unclaimed.remove(space)
+            owned.append(space)
+            print("Bought %s" % space)
+
 
 # This class represents property deeds that can be bought and sold
 class deedCard():    
-    def __init__self(name, cost, mortgage, build=yes, rentList)    
-    
+    def __init__(self, name, cost, card_set, rent_list, build_cost, buildable = True, is_mortgaged = False, mortgage = cost * 0.5, num_houses = 0, hotel = 0, in_set = False): 
+        self.name = name
+        self.cost = cost
+        self.mortgage = mortgage
+        self.is_mortgaged = is_mortgaged
+        self.card_set = card_set
+        self.buildable = buildable
+        self.rent_list = rent_list
+        # RentList: [base], [set], [1 House] ... [4 house], [hotel]
+        self.build_cost = build_cost
+        self.num_houses = 0
+        self.hotel = 0
+        self.in_set = False
+
+    def rent(self, in_set = False):
+        if is_mortgaged:
+            return 0
+
+        if not in_set:
+            return rent_list[0]
+        elif in_set and num_houses == 0 and hotel == 0:
+            return rent_list[1]
+        elif in_set and num_houses == 1:
+            return rent_list[2]
+        elif in_set and num_houses == 2:
+            return rent_list[3]
+        elif in_set and num_houses == 3:
+            return rent_list[4]
+        elif in_set and num_houses == 4:
+            return rent_list[5]
+        elif in_set and hotel == 1:
+            return rent_list[6]
+        else:
+            print("Error: invalid rent of %s" % name)
+            return 0
+
+    def buildHouse(self):
+        if not in_set:
+            print("Error: Cannot build a house on %s because it is not in a set" % name)
+            return
+        elif 1 == 1 and num_houses < 4:
+        # TODO: need a mechanism to check balance BEFORE committing to a buy- probably just call a method in Monopoly class
+        # TODO: add a check to ensure that sufficent houses remain in supply BEFORE committing to a buy
+            num_houses = num_houses + 1
+        else:
+            print("Error: Cannot build a house on %s because it already has the maximum amount of houses." % name)
+            
+    def buildHotel(self):
+        if not in_set:
+            print("Error: Cannot build a hotel on %s because it is not in a set" % name)
+            return
+        elif 1 == 1 and num_houses == 4:
+        # TODO: need a mechanism to check balance BEFORE committing to a buy- probably just call a method in Monopoly class
+        # TODO: add a check to ensure that sufficent hotels remain in supply BEFORE committing to a buy
+            hotel = 1
+        elif 1==1 and num_houses < 4:
+            print("Error: Cannot build a hotel on %s because it does not have 4 houses." % name)
+
+        else:
+            print("Error: Cannot build a hotel on %s" % name)
+
+    def mortgageProperty(self):
+        is_mortgaged = True
+
+    def getCost(self):
+        return cost
+     
+
+
+# This class represents chance or community chest cards
+class randomCard():
+    def __init__(self, cardType, name, text, possess=False):
+        self.cardType = cardType
+        self.name = name
+        self.text = text
+        self.possess = possess
+
+    def readCard(self):
+        return self.text
+
 
 
 def main():
     # AI test: play through some turns with dummy inputs
-
+    # TODO: will likely pass messages between classes pub/sub-style
+    AI = Monopoly()
+    AI.takeTurn(1, 2)
 
 
 
