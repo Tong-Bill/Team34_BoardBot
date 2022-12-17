@@ -1,3 +1,6 @@
+# Author: Bill Tong
+# Objective: Loop through emotions on Baxter display
+
 source /home/bill/baxterws/devel/setup.bash
 
 rosrun baxter_sim_examples xdisplay_image.py --file=`rospack find baxter_sim_examples`/photos/image1.png;
