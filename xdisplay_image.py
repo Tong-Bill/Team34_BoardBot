@@ -1,5 +1,4 @@
 #!/usr/bin/python2
-# Edited by Bill Tong
 
 # Copyright (c) 2013-2015, Rethink Robotics
 # All rights reserved.
@@ -27,6 +26,11 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+""" 
+Team 34: BoardBot
+This file is a modified version of xdisplay_image file. send_images has been Modified by Bill Tong  
+"""
 
 import os
 import sys

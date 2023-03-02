@@ -3,6 +3,9 @@
 	<model name="tophat">
 		<static>false</static>
 		<link name="link">
+			<gravity>true</gravity>
+			<enable_wind>true</enable_wind>
+			<self_collide>false</self_collide>
 			<inertial>
 				<mass>0.1</mass>
 				<inertia>
@@ -21,9 +24,17 @@
 						<scale>2.0 2.0 2.0</scale>
 					</mesh>
 				</geometry>
+				<friction>
+					<ode>
+						<mu>0</mu> <!-- Need more calculations -->
+						<mu2>0</mu2>
+					</ode>
+				</friction>
 			</collision>
 		
 			<visual name="visual">
+				<cast_shadows>true</cast_shadows>
+				<transparency>0</transparency>
 				<geometry>
 					<mesh>
 						<uri>model://tophat/meshes/tophat.dae</uri>

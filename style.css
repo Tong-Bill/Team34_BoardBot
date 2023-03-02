@@ -1,0 +1,175 @@
+/*
+Author: Bill Tong
+Objective: Layout for login form
+*/
+
+/* General Settings */
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+*:focus{
+    outline: none;
+}
+
+body{
+    width: 100%;
+    height: 100vh;
+    min-height: 600px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #111;
+    font-family: 'roboto', sans-serif;
+}
+
+.parent{
+    width: 850px;
+    height: 500px;
+    background: #171717;
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+}
+
+/* Photo configuration */
+.signup-photo,
+.login-photo{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    /* Must give full path if photos not in same folder*/
+    background: url(img/baxter1.png);
+    background-size: cover;
+}
+
+.login-photo{
+    left: 50%;
+    background: url(img/monopolyboard.jpg);
+    background-size: cover;
+}
+
+.container{
+    position: relative;
+    width: 50%;
+    min-width: 300px;
+    height: 100%;
+    background: #171717;
+    transition: 1s;
+    left: 0;
+    display: grid;
+    overflow: hidden;
+    grid-template-columns: repeat(2, calc(850px/2));
+}
+
+/* Configuration for different forms specified in switchform.js file */
+.form{
+    width: 100%;
+    height: 100%;
+    padding: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    transition: 1s;
+}
+
+/* Configuration for Screen title */
+.title{
+    width: 100%;
+    text-align: center;
+    font-size: 60px;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: #fff;
+}
+
+.fields,
+.submit-container{
+    position: relative;
+    width: 100%;
+}
+
+/* Configuration for user input */
+input{
+    display: block;
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 5px 10px;
+    text-transform: capitalize;
+    border: none;
+    border-radius: 5px;
+    height: 30px;
+    background: #0d0d0d;
+    color: #fff;
+}
+
+::placeholder{
+    color: #fff;
+}
+
+/* Configure button appearance */
+.btn{
+    color: #fff;
+    background: #0d0d0d;
+    border: none;
+    padding: 10px 40px;
+    font-size: 15px;
+    text-transform: capitalize;
+    display: block;
+    margin: auto;
+    color: #3f3f3f;
+    cursor: pointer;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    transition: .5s;
+}
+
+/* Mouse Hover and focus appearance*/
+.btn:hover,
+input:focus{
+    background: #000;
+    color: #fff;
+}
+
+.link{
+    text-align: center;
+    color: #3f3f3f;
+    text-transform: capitalize;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: .5s;
+}
+
+.link:hover{
+    color: #fff;
+}
+
+#sign-up-form{
+    margin-left: 50%;
+}
+
+#sign-up-form .title{
+    margin-bottom: 30px;
+}
+
+/* @media applies different settings based on type of device */
+/* In case of issues between different devices among group members*/
+@media screen and (max-width : 800px){
+    .parent{
+        width: 50vw;
+        min-width: 300px;
+        overflow: hidden;
+    }
+    .container{
+        width: 100%;
+        grid-template-columns: repeat(2, 100%);
+    }
+    .signup-photo,
+    .login-photo{
+        display: none;
+    }
+}
