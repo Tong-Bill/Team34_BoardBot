@@ -1,3 +1,15 @@
+""" 
+7 Mar 2023 Update:
+This file is deprecated and its functionality has been split between AI.py and rules.py. 
+It is no longer under development.
+
+This file will be retained for reference for now.
+"""
+
+
+
+
+
 """
 Author: Team 34
 Project: BoardBot
