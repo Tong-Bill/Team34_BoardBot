@@ -5,8 +5,7 @@
 #import os
 #import random
 #from std_msgs.msg import String
-import unittest
-import random
+import rules
 class boardState:
   board = {1: [0, "Brown", "Mediterrean Avenue"], 
            2: [-2, "CommunityChest"],
@@ -47,7 +46,7 @@ class boardState:
            37:[0, "DarkBlue", "Park Place"],
            38:[-2, "Luxury Tax"],
            39:[0, "DarkBlue", "Boardwalk"],
-           40:[-2, "Go"]
+           0:[-2, "Go"]
           }
   def __init__(self):
     self.robotMoney = {500: 2, 100: 2, 50: 2, 20: 6, 10: 5, 5: 5, 1: 5}
@@ -78,24 +77,24 @@ class MoneyExchange(boardState):
           #Give command for the robot to grab the correct currency.
           amount -= (i * temp)
         if amount == 0:
-          return self.robotMoney
+          return
     #Give command for happiness or swagger in social aspects
 
   def loseMoney(self, amount):
     self.robotMoneySum -= amount
-    while amount < 0:
+    while amount > 0:
       for i in self.robotMoney:
-        if amount >= i:
+        if amount >= i and self.robotMoney[i] > 0:
           temp = amount // i
           self.robotMoney[i] -= temp
-          #Give command for the robot to grab the correct currency.
-          amount += (i * temp)
+          amount -= (i * temp)
         if amount == 0:
-          return self.robotMoney
+          return
+          
         #Give command for sadness or angriness in social aspects
 
 
-class Properties(MoneyExchange):
+class Properties(MoneyExchange, rules.BoardSpaces):
 
   #def __init__(self):
   
@@ -115,10 +114,11 @@ class Properties(MoneyExchange):
     if self.goCounter == 0:
       if self.checkPropertyOwnership(self.board[num]):
         self.updateBoard(num, "buy")
-        self.loseMoney(100)
+        self.loseMoney(self.boardS[num][3])
         self.ownedProperties[self.board[num][1]][0] += 1
         self.ownedProperties[self.board[num][1]].append(self.board[num][2])
         print("I have bought " + self.board[num][2] + ".")
+        
       #The robot will always buy on the first round of the board. 
         #Need to implement more intelligence later. 
 
@@ -207,33 +207,20 @@ class GameOver(Properties):
       print("Hello World")
       #Compare the net worths of both players and determines who wins
 
-def rollDice():
-    values = []
-    values.append(random.randrange(1,6))   
-    values.append(random.randrange(1,6))   
-    return tuple(values)
-
-def gameSetup():
-    print("\n\nBegin setup:")
-    print("Choose a banker. A human is preferred.")
-    print("Each player starts with $1500.")
-    # gainMoney (1500)
-    print("Please shuffle the Community Chest and Chance cards, and place them facedown in their designated areas.")
-    print("Choose a token. I will use my special token for easier gripping.")
-    print("Roll the dice. High roll goes first.\n")
-    result = rollDice()
-    print("I rolled {0}\n".format(result))
   
 def playerTurn():
-  gameSetup()
+  rules.gameSetup()
   print("I will go first.")
   p = Properties()
-  r = rollDice()
+  r = rules.rollDice()
   t = r[0] + r[1]
-  print("I rolled a " + str(r[0] + r[1]) + ".")
+  print("I rolled a " + str(t) + ".")
+  if p.board[t][0] == -2:
+    print("I landed on " + p.board[t][1] + ".")
+  else:
+    print("I landed on " + p.board[t][2] + ".")
   p.PurchaseProperty(t)
   print(p.ownedProperties)
-  
   
   
 
