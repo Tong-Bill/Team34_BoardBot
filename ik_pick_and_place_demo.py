@@ -2,34 +2,10 @@
 
 # Copyright (c) 2013-2015, Rethink Robotics
 # All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions are met:
-#
-# 1. Redistributions of source code must retain the above copyright notice,
-#    this list of conditions and the following disclaimer.
-# 2. Redistributions in binary form must reproduce the above copyright
-#    notice, this list of conditions and the following disclaimer in the
-#    documentation and/or other materials provided with the distribution.
-# 3. Neither the name of the Rethink Robotics nor the names of its
-#    contributors may be used to endorse or promote products derived from
-#    this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
-# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
 
 """ 
 Team 34: BoardBot
-This file is based on the pick-and-play demo. Modified by Jacob Boe to use PyKDL instead of the IKSolver package (broken) and incorporate moving around the Monopoly board.
+This file is based on the pick-and-play demo by Rethink Robotics. Modified by Jacob Boe to use a different object position solver by PyKDL and incorporate passing in Monopoly board spaces and moving around them
 """
 
 
@@ -67,11 +43,6 @@ from geometry_msgs.msg import (
 from std_msgs.msg import (
 	Header,
 	Empty,
-)
-
-from baxter_core_msgs.srv import (
-	SolvePositionIK,
-	SolvePositionIKRequest,
 )
 
 import baxter_interface
@@ -238,47 +209,86 @@ class PickAndPlace(object):
 		self._retract()
 
 def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
-						table_reference_frame="world",
-						block_pose=Pose(position=Point(x=0.6725, y=0.1265, z=0.7825)),
-						block_reference_frame="world"):
+                       table_reference_frame="world",
+                       monopoly_pose=Pose(position=Point(x=1.0, y=0.0, z=0.7825)),
+                       monopoly_reference_frame="world",
+                       redDie_pose=Pose(position=Point(x=1.01, y=-0.28, z=0.79)),
+                       redDie_reference_frame="world",
+                       tophat_pose=Pose(position=Point(x=0.468, y=0.363, z=0.784)),
+                       tophat_reference_frame="world"):
     # Get Models' Path
-	model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
+    model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
+
     # Load Table SDF
-	table_xml = ''
-	with open (model_path + "cafe_table/model.sdf", "r") as table_file:
-		table_xml=table_file.read().replace('\n', '')
-    # Load Block URDF
-	block_xml = ''
-	with open (model_path + "block/model.urdf", "r") as block_file:
-		block_xml=block_file.read().replace('\n', '')
+    table_xml = ''
+    with open (model_path + "cafe_table/model.sdf", "r") as table_file:
+        table_xml=table_file.read().replace('\n', '')
+
+    # Load Monopoly SDF
+    monopoly_xml = ''
+    with open (model_path + "monopoly/model.sdf", "r") as monopoly_file:
+        monopoly_xml=monopoly_file.read().replace('\n', '') 
+
+    # Load RedDie SDF
+    redDie_xml = ''
+    with open (model_path + "redDie/model.sdf", "r") as redDie_file:
+        redDie_xml=redDie_file.read().replace('\n', '') 
+
+    # Load Tophat SDF
+    tophat_xml = ''
+    with open (model_path + "tophat/model.sdf", "r") as tophat_file:
+        tophat_xml=tophat_file.read().replace('\n', '') 
+
+
     # Spawn Table SDF
-	rospy.wait_for_service('/gazebo/spawn_sdf_model')
-	try:
-		spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-		resp_sdf = spawn_sdf("cafe_table", table_xml, "/",
-							table_pose, table_reference_frame)
-	except rospy.ServiceException, e:
-		rospy.logerr("Spawn SDF service call failed: {0}".format(e))
-    # Spawn Block URDF
-	rospy.wait_for_service('/gazebo/spawn_urdf_model')
-	try:
-		spawn_urdf = rospy.ServiceProxy('/gazebo/spawn_urdf_model', SpawnModel)
-		resp_urdf = spawn_urdf("block", block_xml, "/",
-                               block_pose, block_reference_frame)
-	except rospy.ServiceException, e:
-		rospy.logerr("Spawn URDF service call failed: {0}".format(e))
+    rospy.wait_for_service('/gazebo/spawn_sdf_model')
+    try:
+        spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+        resp_sdf = spawn_sdf("cafe_table", table_xml, "/",
+                             table_pose, table_reference_frame)
+    except rospy.ServiceException, e:
+        rospy.logerr("Spawn SDF service call failed: {0}".format(e))
+
+    # Spawn Monopoly SDF
+    rospy.wait_for_service('/gazebo/spawn_sdf_model')
+    try:
+        spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+        resp_sdf = spawn_sdf("monopoly", monopoly_xml, "/",
+                             monopoly_pose, monopoly_reference_frame)
+    except rospy.ServiceException, e:
+        rospy.logerr("Spawn SDF service call failed: {0}".format(e))
+
+    # Spawn RedDie SDF
+    rospy.wait_for_service('/gazebo/spawn_sdf_model')
+    try:
+        spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+        resp_sdf = spawn_sdf("redDie", redDie_xml, "/",
+                             redDie_pose, redDie_reference_frame)
+    except rospy.ServiceException, e:
+        rospy.logerr("Spawn SDF service call failed: {0}".format(e))
+
+    # Spawn Tophat SDF
+    rospy.wait_for_service('/gazebo/spawn_sdf_model')
+    try:
+        spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+        resp_sdf = spawn_sdf("tophat", tophat_xml, "/",
+                             tophat_pose, tophat_reference_frame)
+    except rospy.ServiceException, e:
+        rospy.logerr("Spawn SDF service call failed: {0}".format(e))
 
 def delete_gazebo_models():
     # This will be called on ROS Exit, deleting Gazebo models
     # Do not wait for the Gazebo Delete Model service, since
     # Gazebo should already be running. If the service is not
     # available since Gazebo has been killed, it is fine to error out
-	try:
-		delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
-		resp_delete = delete_model("cafe_table")
-		resp_delete = delete_model("block")
-	except rospy.ServiceException, e:
-		rospy.loginfo("Delete Model service call failed: {0}".format(e))
+    try:
+        delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+        resp_delete = delete_model("cafe_table")
+        resp_delete = delete_model("monopoly")
+        resp_delete = delete_model("redDie")
+        resp_delete = delete_model("tophat")
+    except rospy.ServiceException, e:
+        rospy.loginfo("Delete Model service call failed: {0}".format(e))
 
 def main():
 	rospy.init_node("ik_pick_and_place_demo")
@@ -316,7 +326,7 @@ def main():
     # Move around the monopoly board space by space
 	while not rospy.is_shutdown():
 		pnp.pick(board_space, rot) 
-        # TODO count += <dice roll>  
+        # count += <dice roll>  
 		count += 1
 		if count >= 40:
 			count -= 40
@@ -337,7 +347,7 @@ def main():
 			board_space[0] -= .07
 		elif count > 31 and count < 40:
 			board_space[1] += .07
-		
+			
 		pnp.place(board_space, rot)
   
 	return 0
