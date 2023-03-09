@@ -24,9 +24,9 @@ import numpy as np
 import PyKDL
 
 import rospy
-
 import baxter_interface
 
+from std_msgs.msg import String
 from baxter_kdl.kdl_parser import kdl_tree_from_urdf_model
 from urdf_parser_py.urdf import URDF
 
@@ -45,8 +45,14 @@ from std_msgs.msg import (
 	Empty,
 )
 
+from baxter_core_msgs.srv import (
+	SolvePositionIK,
+	SolvePositionIKRequest,
+)
+
 import baxter_interface
 
+#class PickAndPlace():
 class PickAndPlace(object):
 	def __init__(self, limb, hover_distance = 0.15, verbose=True):
 		self._limb_name = limb # string
@@ -141,9 +147,12 @@ class PickAndPlace(object):
 		print("Running. Ctrl-c to quit")
 
 	def _guarded_move_to_joint_position(self, joint_angles):
-		if len(joint_angles) > 1:
+		try:
+			if len(joint_angles) > 1:
 				self._limb.move_to_joint_positions(joint_angles)
-		else:
+			else:
+				rospy.logerr("No Joint Angles provided for move_to_joint_positions. Staying put.")
+		except:
 			rospy.logerr("No Joint Angles provided for move_to_joint_positions. Staying put.")
 
 	def gripper_open(self):
@@ -214,7 +223,7 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
                        monopoly_reference_frame="world",
                        redDie_pose=Pose(position=Point(x=1.01, y=-0.28, z=0.79)),
                        redDie_reference_frame="world",
-                       tophat_pose=Pose(position=Point(x=0.468, y=0.363, z=0.784)),
+                       tophat_pose=Pose(position=Point(x=0.635, y=0.363, z=0.785)),
                        tophat_reference_frame="world"):
     # Get Models' Path
     model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
@@ -233,7 +242,7 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
     redDie_xml = ''
     with open (model_path + "redDie/model.sdf", "r") as redDie_file:
         redDie_xml=redDie_file.read().replace('\n', '') 
-
+        
     # Load Tophat SDF
     tophat_xml = ''
     with open (model_path + "tophat/model.sdf", "r") as tophat_file:
@@ -266,7 +275,6 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
                              redDie_pose, redDie_reference_frame)
     except rospy.ServiceException, e:
         rospy.logerr("Spawn SDF service call failed: {0}".format(e))
-
     # Spawn Tophat SDF
     rospy.wait_for_service('/gazebo/spawn_sdf_model')
     try:
@@ -281,14 +289,37 @@ def delete_gazebo_models():
     # Do not wait for the Gazebo Delete Model service, since
     # Gazebo should already be running. If the service is not
     # available since Gazebo has been killed, it is fine to error out
-    try:
-        delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
-        resp_delete = delete_model("cafe_table")
-        resp_delete = delete_model("monopoly")
-        resp_delete = delete_model("redDie")
-        resp_delete = delete_model("tophat")
-    except rospy.ServiceException, e:
-        rospy.loginfo("Delete Model service call failed: {0}".format(e))
+	try:
+		delete_model = rospy.ServiceProxy('/gazebo/delete_model', DeleteModel)
+		resp_delete = delete_model("cafe_table")
+		resp_delete = delete_model("block")
+	except rospy.ServiceException, e:
+		rospy.loginfo("Delete Model service call failed: {0}".format(e))
+		
+def get_position(count, dice_roll, board_space):
+	for i in range(dice_roll):
+		count += 1
+		if count >= 40:
+			count -= 40
+			board_space = ([0.635, 0.363, -0.135])
+		elif count == 1 or count == 10:
+			board_space[0] += .095
+		elif count == 11 or count == 20:
+			board_space[1] -= .095
+		elif count == 21 or count == 30:
+			board_space[0] -= .095
+		elif count == 31:
+			board_space[1] += .095
+		elif count > 1 and count < 10:
+			board_space[0] += .07
+		elif count > 11 and count < 20:
+			board_space[1] -= .07
+		elif count > 21 and count < 30:
+			board_space[0] -= .07
+		elif count > 31 and count < 40:
+			board_space[1] += .07
+		
+	return board_space
 
 def main():
 	rospy.init_node("ik_pick_and_place_demo")
@@ -317,36 +348,19 @@ def main():
 	rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
 
 	# Starting board space
-	board_space = ([0.468, 0.363, -0.14]) # Go
+	board_space = ([.635, 0.363, -0.135]) # Go
 	count = 0
+	# TODO pass in dice roll
+	dice_roll = 1
     
     # Move to the desired starting angles
 	pnp.move_to_start(starting_joint_angles)
-    
+
     # Move around the monopoly board space by space
 	while not rospy.is_shutdown():
 		pnp.pick(board_space, rot) 
-        # count += <dice roll>  
-		count += 1
-		if count >= 40:
-			count -= 40
-			board_space = ([0.468, 0.363, -0.14])
-		elif count == 1 or count == 10:
-			board_space[0] += .095
-		elif count == 11 or count == 20:
-			board_space[1] -= .095
-		elif count == 21 or count == 30:
-			board_space[0] -= .095
-		elif count == 31:
-			board_space[1] += .095
-		elif count > 1 and count < 10:
-			board_space[0] += .07
-		elif count > 11 and count < 20:
-			board_space[1] -= .07
-		elif count > 21 and count < 30:
-			board_space[0] -= .07
-		elif count > 31 and count < 40:
-			board_space[1] += .07
+		board_space = get_position(count, dice_roll, board_space)
+		count += dice_roll
 			
 		pnp.place(board_space, rot)
   
@@ -354,3 +368,57 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
+#def movementListener():
+    # Load Gazebo Models via Spawning Services
+    # Note that the models reference is the /world frame
+    # and the IK operates with respect to the /base frame
+#	load_gazebo_models()
+    # Remove models from the scene on shutdown
+#	rospy.on_shutdown(delete_gazebo_models)
+
+    # Wait for the All Clear from emulator startup
+#	rospy.wait_for_message("/robot/sim/started", Empty)
+	
+	#rospy.Subscriber("AI", String)
+
+#	limb = 'left'
+#	hover_distance = 0.15 # meters
+    # Starting Joint angles for left arm
+#	starting_joint_angles = {'left_w0': 0.6699952259595108,
+ #                               'left_w1': 1.030009435085784,
+  #                              'left_w2': -0.4999997247485215,
+   #                             'left_e0': -1.189968899785275,
+    #                            'left_e1': 1.9400238130755056,
+ #                               'left_s0': -0.08000397926829805,
+  #                              'left_s1': -0.9999781166910306}
+	#pnp = PickAndPlace(limb, hover_distance)
+    # An orientation for gripper fingers to be overhead and parallel to the obj
+	#rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
+
+	# Starting board space
+#	board_space = ([0.468, 0.363, -0.14]) # Go
+#	count = 0
+    
+    # Move to the desired starting angles
+#	pnp.move_to_start(starting_joint_angles)
+    
+    # Move around the monopoly board space by space
+#	pnp.pick(board_space, rot) 
+#	dice_roll = 1
+#	count += dice_roll
+#	board_space = get_position(count, dice_roll, board_space)
+	
+#	pnp.place(board_space, rot)
+#	pnp.move_to_start(starting_joint_angles)
+  
+#	return 0
+
+#if __name__ == '__main__':
+    #try:
+    	#rospy.init_node("pick_and_place", anonymous=True)
+    	#place = PickAndPlace()
+   		#rospy.spin()
+    #except rospy.ROSInterruptException:
+    #	pass
+   # movementListener()
+ #   """
