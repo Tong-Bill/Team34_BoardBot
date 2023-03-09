@@ -6,6 +6,8 @@
 #import random
 #from std_msgs.msg import String
 import rules
+import expressions  # For voice
+import subprocess   # For voice
 class boardState:
   board = {1: [0, "Brown", "Mediterrean Avenue"], 
            2: [-2, "CommunityChest"],
@@ -210,18 +212,26 @@ class GameOver(Properties):
   
 def playerTurn():
   rules.gameSetup()
+  subprocess.call(['./neutral.sh'], shell=True) # display 'neutral' face
   boardPosition = 0 
   print("I will go first.\n\n")
   p = Properties()
   boardObj = rules.BoardSpaces()
 
-
+  # Run through 10 sample turns
   for i in range(1, 11):
+    # Roll dice
     result = rules.rollDice()
+    
+    # check for legal dice result
     if (rules.evaluateDice(result)):
+    
+        # Count total dice value
         totalDice = result[0] + result[1]
         print("I rolled " + str(result) + " for a total of " + str(totalDice) + ".")
         print("Moving " + str(totalDice) + " spaces")
+        
+        # Update board position
         boardPosition += totalDice
         boardPosition %= 40 # Used to circulate around the board
         if (boardObj.board[boardPosition][0] == "Property"):
@@ -233,10 +243,14 @@ def playerTurn():
 
         print(boardObj.parseSpace(boardPosition))
         if "Jail" in boardObj.parseSpace(boardPosition):
+            subprocess.call(['./angry.sh'], shell=True) # display 'angry' face
+            expressions.Run(1)          # Play an angry voice clip
             boardPosition = 10; # Go to Jail!
 
         if result[0] == result[1]:
             print("I rolled doubles! Taking another turn\n")
+            subprocess.call(['./happy.sh'], shell=True) # display 'happy' face
+            expressions.Run(3)          # Play an happy voice clip
             i -= 1  # Rolled doubles, derement turn count
             continue
     else:
