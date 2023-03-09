@@ -226,9 +226,14 @@ def playerTurn():
         boardPosition %= 40 # Used to circulate around the board
         if (boardObj.board[boardPosition][0] == "Property"):
             print("Landed on " + boardObj.board[boardPosition][2])
-            print("This property costs $" + str(boardObj.board[boardPosition][3])) 
+            print("This property costs $" + str(boardObj.board[boardPosition][3]))
         else: 
             print("Landed on " + boardObj.board[boardPosition][1])
+
+
+        print(boardObj.parseSpace(boardPosition))
+        if "Jail" in boardObj.parseSpace(boardPosition):
+            boardPosition = 10; # Go to Jail!
 
         if result[0] == result[1]:
             print("I rolled doubles! Taking another turn\n")

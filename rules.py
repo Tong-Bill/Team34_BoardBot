@@ -86,16 +86,16 @@ class BoardSpaces(object):
         if space == 'Property':
             messageString = "Options: own, buy, auction, pay rent"
         elif space == 'Action':
-            messageString = actionRules(spaceNumber)
+            messageString = self.actionRules(spaceNumber)
         else:
             messageString = "Error: invalid board space!"
         return messageString
 
     # Given a space ID number, return a string of the action(s) to be performed
     def actionRules(self, spaceNumber):
-        if spacenumber == 40:
+        if spaceNumber == 40:
             actionString = "Gain 200"   # "Go"
-        elif spaceNumber == 2 or spaceNumber == 17 or spacenumber == 33:
+        elif spaceNumber == 2 or spaceNumber == 17 or spaceNumber == 33:
             actionString = "Draw card: community chest"
         elif spaceNumber == 7 or spaceNumber == 22 or spaceNumber == 36:
             actionString = "Draw card: chance"
