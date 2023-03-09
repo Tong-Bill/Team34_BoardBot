@@ -11,7 +11,8 @@ that will make decisions based on the responses of the rules
 import rospy
 import sys
 import os
-import random   # for random dice values
+import random           # for random dice values
+from math import ceil   # for rounding
 from std_msgs.msg import String
 
 def gameSetup():
@@ -35,7 +36,7 @@ def gameSetup():
 class BoardSpaces(object):
     
             # Board space schema:
-            # {spaceNumber: [Space type, <color set>, Property name, <cost>, <rent>]}
+            # {spaceNumber: [Space type, <color set>, Property name, <cost>]}
             # Note that color set, cost, and rent only apply to "property" types
     board = {1: ["Property", "Brown", "Mediterrean Avenue", 60], 
            2: ["Action", "CommunityChest"],
@@ -79,23 +80,37 @@ class BoardSpaces(object):
            40:["Action", "Go"]
           }
 
+    # Given a space ID Number, determine if a space is a property or an action space
     def parseSpace(self, spaceNumber):
         space = self.board[spaceNumber][0]
-        if space = 'Property':
+        if space == 'Property':
             messageString = "Options: own, buy, auction, pay rent"
-        else if space = 'Action':
-            messageString = actionRules(spaceNumber)
+        elif space == 'Action':
+            messageString = self.actionRules(spaceNumber)
         else:
             messageString = "Error: invalid board space!"
         return messageString
 
+    # Given a space ID number, return a string of the action(s) to be performed
     def actionRules(self, spaceNumber):
-        if spacenumber = 40:
-            actionString = "Gain 200"
-        else if spaceNumber = 2 or spaceNumber = 17 or spacenumber = 33:
+        if spaceNumber == 40:
+            actionString = "Gain 200"   # "Go"
+        elif spaceNumber == 2 or spaceNumber == 17 or spaceNumber == 33:
             actionString = "Draw card: community chest"
-        else if spaceNumber = 7 or spaceNumber = 22 or spaceNumber = 36;
+        elif spaceNumber == 7 or spaceNumber == 22 or spaceNumber == 36:
+            actionString = "Draw card: chance"
+        elif spaceNumber == 10 or spaceNumber == 20:
+            actionString = "Do nothing" # Visit Jail/Free parking
+        elif spaceNumber == 4:
+            actionString = "Pay 200"    # Income Tax
+        elif spaceNumber == 38:
+            actionString = "Pay 100"    # Luxury Tax
+        elif spaceNumber == 30:
+            actionString = "go to Jail" # Jail
+        else:
+            actionString = "Error: undefined action in rules.py/actionRules"
 
+        return actionString
 
 class TitleDeedCards(object):
         # Title Deed schema:
@@ -132,6 +147,39 @@ class TitleDeedCards(object):
            39:[[50, 100, 200, 600, 1400, 1700, 2000], 200, 200],# Boardwalk
           }
 
+     # Return the rent of a space based on presence of a set and number of buildings
+     # TODO: implement rent mechanics for utilites
+     def rentLookup(self, space, isSet = False, numHouses = 0, numHotel = 0, isMortgaged = False):
+         try:
+            rentList = self.cards[space][0]    
+         except:
+             return -1 # invalid space
+
+         if isSet == True:
+             return rentList[1]
+         elif numHouses > 0:
+             return rentList[1+numHouses]
+         elif numHotel == 1:
+             return rentList[6]
+         elif isMortgaged == True:
+             return 0   # Mortgaged properties do not provide rent
+         else:
+             return rentList[0]
+
+     # get the cost of building a house or hotel. Does not imply that said buildings are available
+     def getBuildCost(self, space):
+         return self.cards[space][1]
+
+     # get the cash value of mortgaging a property
+     def mortgageProperty(self, space):
+         return self.cards[space][2]
+
+     def unmortgageProperty(self, space, payment):
+         cost = ceil(self.cards[space][2] * 1.1) # round up to next integer
+         if payment < cost:
+             print("Insufficent payment: got " + str(cost) + ", need " + str(payment) + ".")
+         else:
+             print("Payment received, property is unmortgaged. You may collect rent on it.")
 
 class Buildings(object):
     # Quantity of houses and hotels. Cannot build if all buildings are allocated
@@ -199,33 +247,67 @@ class ChanceCommunityCards(object):
 # Substitute "num" for "Turn information"
 
 
+
+
 #class playerTurn():
 # Parts of this code is adapted from https://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29
 def playerTurn():
     doublesCount = 0    # Track the number of doubles rolled
 #def takeTurn():
+     # This is the structure of a turn:
+
+    # Roll dice
+    # Move piece
+    # Apply rules of space
+
+    # Initialization
     pub = rospy.Publisher('TurnInfo', String, queue_size = 10)
-    rospy.init_node('playerTurn')
-    rate = rospy.Rate(10) # Send messages every 10 hz
-    b = BoardSpaces()
-    b.parseSpace(1)
+    rospy.init_node('playerTurn')       # create topic
+    rate = rospy.Rate(10)               # Send messages every 10 hz
+    board = BoardSpaces()
+    properties = TitleDeedCards()
+
+
+    """ 
+    # Input testing:
+    spac = input("Enter a number:\n")
+    numH = input("Enter the number of houses (can be 0):\n")
+    numHotel = input("Is there a hotel?\n")
+
+
+    print(board.parseSpace(spac))
+    print("Rent is:")
+    print(properties.rentLookup(spac, False, numH, numHotel))
+    #print(properties.getBuildCost(spac))
+    #print(properties.mortgageProperty(spac))
+    """
     #gameSetup()
     rospy.sleep(1)
-
+    
+    
     while not rospy.is_shutdown():
-        rospy.sleep(2)
+        #rospy.sleep(2)
 
         # Core loop- Taking a turn
         for i in range(1,3):
-            result = rollDice()
-            print("I rolled {0}\n".format(result))
-            print("I am taking my turn\n")
-            if result[0] != result[1]:
-                print("end of turn\n")
-                # No double: end turn. Otherwise, take another turn
-                break
+            #result = rollDice()
+            turnMessage = "Roll dice"
+            pub.publish(turnMessage)
+            rate.sleep()
+            if evaluateDice(result):
+                #print("I rolled {0}\n".format(result))
+                #print("I am taking my turn\n")
+                turnMessage = ("Move " + str(result))
+                if result[0] != result[1]:
+                    
+                    print("end of turn\n")
+                    # No double: end turn. Otherwise, take another turn
+                    break
             
-            
+            else:
+                print("Invalid dice roll!\n")
+
+                        
 
 
             print("I rolled doubles, I am taking another turn\n\n")
@@ -234,7 +316,7 @@ def playerTurn():
                 #doublesCount += 1
                 #if doublesCount == 3:
                 #    print("Go to Jail!")
-
+    
 
 
 
@@ -243,20 +325,6 @@ def playerTurn():
     # Roll dice
     # Move piece
     # Apply rules of space
-
-
-    # result = rollDice(iteration)
-
-    # if result >= 2:
-        # continue with turn
-        
-        # action, etc.
-
-    # else:
-    # go to jail
-# Check for three doubles in a row
-#    for i in range(1, 3):
-
 # End playerTurn()
 
 
@@ -267,7 +335,30 @@ def rollDice():
     values.append(random.randrange(1,6))   
     return tuple(values)
 
+# Given a tuple containing dice roll values, verify that:
+#   There are exactly two values
+#   Those values are integers
+#   Those values are between 1 and 6, inclusive
+def evaluateDice(diceRoll):
+    # Check that there are only two dice values submitted
+    try: 
+        if (len(diceRoll) != 2):
+            return False
+    except:
+        return False
 
+    dieOne = diceRoll[0]
+    dieTwo = diceRoll[1]
+
+    # Confirm that dice results are integers
+    if not isinstance(dieOne, int) or not isinstance(dieTwo, int):
+        return False
+
+    # Confirm that dice results are within legal ranges
+    if dieOne >= 1 and dieOne <= 6 and dieTwo >= 1 and dieTwo <= 6:
+        return True
+
+    return False
 
 #class Money:
 #    def PayMoney():
@@ -294,4 +385,4 @@ if __name__ == '__main__':
     try:
         playerTurn()
     except rospy.ROSInterruptException:
-        print("Error while instantiating playerTurn(0 in rules.py!\n")
+        print("Error while instantiating playerTurn in rules.py!\n")
