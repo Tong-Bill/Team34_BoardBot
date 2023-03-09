@@ -216,18 +216,24 @@ def playerTurn():
   boardObj = rules.BoardSpaces()
 
 
-  for i in range(1, 4):
+  for i in range(1, 11):
     result = rules.rollDice()
     if (rules.evaluateDice(result)):
         totalDice = result[0] + result[1]
         print("I rolled " + str(result) + " for a total of " + str(totalDice) + ".")
         print("Moving " + str(totalDice) + " spaces")
         boardPosition += totalDice
+        boardPosition %= 40 # Used to circulate around the board
         if (boardObj.board[boardPosition][0] == "Property"):
             print("Landed on " + boardObj.board[boardPosition][2])
             print("This property costs $" + str(boardObj.board[boardPosition][3])) 
         else: 
             print("Landed on " + boardObj.board[boardPosition][1])
+
+        if result[0] == result[1]:
+            print("I rolled doubles! Taking another turn\n")
+            i -= 1  # Rolled doubles, derement turn count
+            continue
     else:
         print("Cheater! Invalid dice roll")
     print("\nEnd of turn " + str(i) + "\n")
