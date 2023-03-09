@@ -36,7 +36,7 @@ def gameSetup():
 class BoardSpaces(object):
     
             # Board space schema:
-            # {spaceNumber: [Space type, <color set>, Property name, <cost>, <rent>]}
+            # {spaceNumber: [Space type, <color set>, Property name, <cost>]}
             # Note that color set, cost, and rent only apply to "property" types
     board = {1: ["Property", "Brown", "Mediterrean Avenue", 60], 
            2: ["Action", "CommunityChest"],
@@ -80,6 +80,7 @@ class BoardSpaces(object):
            40:["Action", "Go"]
           }
 
+    # Given a space ID Number, determine if a space is a property or an action space
     def parseSpace(self, spaceNumber):
         space = self.board[spaceNumber][0]
         if space == 'Property':
@@ -90,6 +91,7 @@ class BoardSpaces(object):
             messageString = "Error: invalid board space!"
         return messageString
 
+    # Given a space ID number, return a string of the action(s) to be performed
     def actionRules(self, spaceNumber):
         if spacenumber == 40:
             actionString = "Gain 200"   # "Go"
@@ -172,12 +174,12 @@ class TitleDeedCards(object):
      def mortgageProperty(self, space):
          return self.cards[space][2]
 
-    def unmortgageProperty(self, space, payment):
-        cost = ceil(self.cards[space][2] * 1.1) # round up to next integer
-        if payment < cost:
-            print("Insufficent payment: got %s, need %s.", %(cost, payment))
-        else:
-            print("Payment received, property is unmortgaged. You may collect rent on it.")
+     def unmortgageProperty(self, space, payment):
+         cost = ceil(self.cards[space][2] * 1.1) # round up to next integer
+         if payment < cost:
+             print("Insufficent payment: got " + str(cost) + ", need " + str(payment) + ".")
+         else:
+             print("Payment received, property is unmortgaged. You may collect rent on it.")
 
 class Buildings(object):
     # Quantity of houses and hotels. Cannot build if all buildings are allocated
@@ -245,6 +247,8 @@ class ChanceCommunityCards(object):
 # Substitute "num" for "Turn information"
 
 
+
+
 #class playerTurn():
 # Parts of this code is adapted from https://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29
 def playerTurn():
@@ -286,12 +290,16 @@ def playerTurn():
 
         # Core loop- Taking a turn
         for i in range(1,3):
-            result = rollDice()
+            #result = rollDice()
+            turnMessage = "Roll dice"
+            pub.publish(turnMessage)
+            rate.sleep()
             if evaluateDice(result):
-                print("I rolled {0}\n".format(result))
-                print("I am taking my turn\n")
-                
+                #print("I rolled {0}\n".format(result))
+                #print("I am taking my turn\n")
+                turnMessage = ("Move " + str(result))
                 if result[0] != result[1]:
+                    
                     print("end of turn\n")
                     # No double: end turn. Otherwise, take another turn
                     break
@@ -377,4 +385,4 @@ if __name__ == '__main__':
     try:
         playerTurn()
     except rospy.ROSInterruptException:
-        print("Error while instantiating playerTurn(0 in rules.py!\n")
+        print("Error while instantiating playerTurn in rules.py!\n")
