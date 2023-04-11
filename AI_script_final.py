@@ -4,8 +4,7 @@ from time import sleep
 #This is to generate a random order for the cards
 import random as rd
 #restructured the AI code to make it more readable
-. 
-class board(rules.boardSpaces, rules.TitleDeedCards):
+class board(rules.BoardSpaces, rules.TitleDeedCards):
   #Reorganized to start at 0, with 0 representing Go. -2 means unbuyable, 0 means unpurchased, 1 means owned by BoardBot, and -1 means owned by another player. 
   #[Ownership, Color Set, Name, # of properties in the set]
   
@@ -74,9 +73,9 @@ class board(rules.boardSpaces, rules.TitleDeedCards):
       #This stores the number of properties in the set. This is for AI to prioritize finishing sets. 
       self.numInColor = self.Board[self.currPos][3]
       #This stores the price of the property. 
-      self.price = self.boardS[self.currPos][3]
+      self.price = self.board[self.currPos][3]
       #This stores the price that it costs to build houses and hotels on the property. 
-      self.buildPrice = self.propertyCards[self.currPos][1]
+      self.buildPrice = self.cards[self.currPos][1]
 
   #This is to update the position after a roll. If the current position is above 39, then it will reset to below 39 and the passGo function will be called. 
   def updatePosition(self, sum):
@@ -180,16 +179,17 @@ class Actions(Assets, rules.ChanceCommunityCards):
 
   def buy(self):
     self.namingShortcut()
-    self.leftoverMoney = self.robotMoneySum-self.price
-    if self.square != -2 and self.square != -1:
-      if self.leftoverMoney >=350:
-        self.updateOwnership("buy")
-        self.giveMoney(self.price)
-        if self.color == "Railroad" or self.color == "Utilities":
-          self.ownedProperties[self.color].append(self.name)
-        else:
-          self.ownedProperties[self.color][self.name][0] = True
-        self.numProperties += 1
+    if self.square != -2:
+      self.leftoverMoney = self.robotMoneySum-self.price
+      if self.square != -1:
+        if self.leftoverMoney >=350:
+          self.updateOwnership("buy")
+          self.giveMoney(self.price)
+          if self.color == "Railroad" or self.color == "Utilities":
+            self.ownedProperties[self.color].append(self.name)
+          else:
+            self.ownedProperties[self.color][self.name][0] = True
+          self.numProperties += 1
       
   def upgradeProperty(self):
     return
