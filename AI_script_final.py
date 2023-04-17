@@ -301,7 +301,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
     
     if x >= 350 and self.isPlayer == False:
       print("Adding a house to " + choice)
-      self.giveMoney(self.cards[choice][1])
+      self.giveMoney(self.getBuildCost(choice))
       if self.isPlayer == True:
         self.playerOwnedProperties[color][choice][1] += 1
       else:
@@ -339,13 +339,13 @@ class Actions(Assets, rules.ChanceCommunityCards):
           choice2 = input("Are your sure? You will not be able to buy houses in this color set anymore [y/n]: ")
           match choice2:
             case "y":
-              self.gainMoney(self.cards[choice][2])
+              self.gainMoney(self.mortgageProperty(choice))
               self.playerOwnedProperties[color][choice][2] = True
               return
             case "n":
               return
         elif choice in prop[color]:
-          self.gainMoney(self.cards[choice][2])
+          self.gainMoney(self.mortgageProperty(choice))
           self.playerOwnedProperties[color][choice][2] = True
     else:
       return
@@ -436,7 +436,7 @@ class Decisions(Jail):
             case 1:
               self.buy()
             case 2:
-              if len(self.playerOwnedSets) != 0:
+              if len(self.playerOwnedSets) > 0:
                 print("Your current completed sets are " + str(self.playerOwnedSets))
                 i = input("What color set would you like to build on?: ")
                 self.buyHouse(i)
