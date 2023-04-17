@@ -115,7 +115,7 @@ class TitleDeedCards(object):
         #   {spaceNumber: [[base rent, set rent, 1 house rent... hotel rent], buildCost, mortgage value]
         #   Note that spaceNumber corresponds to keys in board dict (see BoardSpaces class)
         #   Unmortgage is: 1.1 * mortgage_value, rounded up
-     cards = {1: [[2, 4, 10, 30, 90, 160, 250], 50, 30],        # Mediterranean
+     """cards = {1: [[2, 4, 10, 30, 90, 160, 250], 50, 30],        # Mediterranean
            3: [[4, 8, 20, 60, 180, 320, 450], 50, 30],          # Baltic
            5: [[25, 50, 100, 200], 100],                        # Reading R.R.
            6: [[6, 12, 30, 90, 270, 400, 550], 50, 50],         # Oriental
@@ -143,8 +143,36 @@ class TitleDeedCards(object):
            35:[[25, 50, 100, 200], 100],                        # Shortline R.R.
            37:[[35, 70, 175, 500, 1100, 1300, 1500], 200, 175], # Park Place
            39:[[50, 100, 200, 600, 1400, 1700, 2000], 200, 200],# Boardwalk
+          }"""
+    cards = {"Mediterranean Avenue": [[2, 4, 10, 30, 90, 160, 250], 50, 30],
+           "Baltic Avenue": [[4, 8, 20, 60, 180, 320, 450], 50, 30],
+           "Reading Railroad": [[25, 50, 100, 200], 100],                        
+           "Oriental Avenue": [[6, 12, 30, 90, 270, 400, 550], 50, 50],         
+           "Vermont Avenue": [[6, 12, 30, 90, 270, 400, 550], 50, 50], 
+           "Connecticut Avenue": [[8, 16, 40, 100, 300, 450, 600], 50, 60],         
+           "St Charles Place":[[10, 20, 50, 150, 450, 625, 750], 100, 70],                          
+           "Electric Company":[[4, 10], 75],                                    
+           "States Avenue":[[10, 20, 50, 150, 450, 625, 750], 100, 70],
+           "Virginia Avenue":[[12, 24, 60, 180, 500, 700, 900], 100, 80],
+           "Pennsylvania Railroad":[[25, 50, 100, 200], 100],                        
+           "St James Place":[[14, 28, 70, 200, 550, 750, 950], 100, 90],     
+           "Tennessee Avenue":[[14, 28, 70, 200, 550, 750, 950], 100, 90],     
+           "New York Avenue":[[16, 32, 80, 220, 600, 800, 1000], 100, 100],
+           "Kentucky Avenue":[[18, 36, 90, 250, 700, 875, 1050], 150, 110],
+           "Indiana Avenue":[[18, 36, 90, 250, 700, 875, 1050], 150, 110],
+           "Illinois Avenue":[[20, 40, 100, 300, 750, 925, 1100], 150, 120],
+           "B&O Railroad":[[25, 50, 100, 200], 100],
+           "Atlantic Avenue":[[22, 44, 110, 330, 800, 975, 1150], 150, 130],
+           "Ventnor Avenue":[[22, 44, 110, 330, 800, 975, 1150], 150, 130],
+           "Water Works":[[4, 10], 75],
+           "Marvin Gardens":[[24, 48, 120, 360, 850, 1025, 1200], 150, 140],
+           "Pacific Avenue":[[26, 52, 130, 390, 900, 1100, 1275], 200, 150],
+           "North Carolina Avenue":[[26, 52, 130, 390, 900, 1100, 1275], 200, 150], 
+           "Pennsylvania Avenue":[[28, 56, 150, 450, 1000, 1200, 1400], 200, 160], 
+           "Shortline":[[25, 50, 100, 200], 100],
+           "Park Place":[[35, 70, 175, 500, 1100, 1300, 1500], 200, 175],
+           "Boardwalk":[[50, 100, 200, 600, 1400, 1700, 2000], 200, 200]
           }
-
      # Return the rent of a space based on presence of a set and number of buildings
      # TODO: implement rent mechanics for utilites
      def rentLookup(self, space, isSet = False, numHouses = 0, numHotel = 0, isMortgaged = False):
