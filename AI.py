@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
-#import rospy
+import rospy
 #import sys
 #import os
 #import random
 #from std_msgs.msg import String
 import rules
+import expressions  # For voice
+import subprocess   # For voice
 class boardState:
   board = {1: [0, "Brown", "Mediterrean Avenue"], 
            2: [-2, "CommunityChest"],
@@ -210,38 +212,60 @@ class GameOver(Properties):
   
 def playerTurn():
   rules.gameSetup()
+  #subprocess.call(['./neutral.sh'], shell=True) # display 'neutral' face
   boardPosition = 0 
-  print("I will go first.\n\n")
+  print("I will go first.\n------------------------------------\n")
+  rospy.sleep(1)
+  propCards = rules.TitleDeedCards()
   p = Properties()
   boardObj = rules.BoardSpaces()
 
-
+  # Run through 10 sample turns
   for i in range(1, 11):
+    # Roll dice
     result = rules.rollDice()
+    
+    # check for legal dice result
     if (rules.evaluateDice(result)):
+    
+        # Count total dice value
         totalDice = result[0] + result[1]
         print("I rolled " + str(result) + " for a total of " + str(totalDice) + ".")
-        print("Moving " + str(totalDice) + " spaces")
+        print("Moving " + str(totalDice) + " spaces\n")
+        
+        # Update board position
         boardPosition += totalDice
         boardPosition %= 40 # Used to circulate around the board
+        if boardPosition == 0:
+            boardPosition = 1   # 0 is not a valid board space beyond initialization
+
+
         if (boardObj.board[boardPosition][0] == "Property"):
             print("Landed on " + boardObj.board[boardPosition][2])
             print("This property costs $" + str(boardObj.board[boardPosition][3]))
+            print("Rent here ranges from " + str(propCards.cards[boardPosition][0][0]) +  " to " + str(propCards.cards[boardPosition][0][-1]) + "\n") 
         else: 
             print("Landed on " + boardObj.board[boardPosition][1])
 
 
         print(boardObj.parseSpace(boardPosition))
         if "Jail" in boardObj.parseSpace(boardPosition):
+            #subprocess.call(['./angry.sh'], shell=True) # display 'angry' face
+            #expressions.Run(1)          # Play an angry voice clip
             boardPosition = 10; # Go to Jail!
 
         if result[0] == result[1]:
             print("I rolled doubles! Taking another turn\n")
+            #subprocess.call(['./happy.sh'], shell=True) # display 'happy' face
+            #expressions.Run(3)          # Play an happy voice clip
             i -= 1  # Rolled doubles, derement turn count
             continue
     else:
         print("Cheater! Invalid dice roll")
-    print("\nEnd of turn " + str(i) + "\n")
+    print("\nEnd of turn " + str(i) + "\n------------------------------------")
+    rospy.sleep(2)
+
+
     """
   if p.board[t][0] == -2:
     print("I landed on " + p.board[t][1] + ".")
