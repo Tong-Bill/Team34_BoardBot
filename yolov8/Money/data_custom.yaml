@@ -1,0 +1,6 @@
+train: /home/team34/yolov8/Money/train
+val: /home/team34/yolov8/Money/val
+
+nc: 7
+
+name: ["$20 dollars", "$10 dollars", "$100 dollars", "$50 dollars", "$5 dollars", "$1 dollar", "$500 dollars"]
