@@ -219,11 +219,11 @@ class PickAndPlace(object):
 
 def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
                        table_reference_frame="world",
-                       monopoly_pose=Pose(position=Point(x=1.0, y=0.0, z=0.7825)),
+                       monopoly_pose=Pose(position=Point(x=0.575227, y=0.010211, z=0.75)),
                        monopoly_reference_frame="world",
                        redDie_pose=Pose(position=Point(x=1.01, y=-0.28, z=0.79)),
                        redDie_reference_frame="world",
-                       tophat_pose=Pose(position=Point(x=0.635, y=0.363, z=0.785)),
+                       tophat_pose=Pose(position=Point(x=0.469764, y=0.190833, z=0.791294)),
                        tophat_reference_frame="world"):
     # Get Models' Path
     model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
@@ -301,23 +301,23 @@ def get_position(count, dice_roll, board_space):
 		count += 1
 		if count >= 40:
 			count -= 40
-			board_space = ([0.635, 0.363, -0.135])
+			board_space = ([0.469764, 0.190833, -0.135])
 		elif count == 1 or count == 10:
-			board_space[0] += .095
-		elif count == 11 or count == 20:
-			board_space[1] -= .095
-		elif count == 21 or count == 30:
-			board_space[0] -= .095
-		elif count == 31:
-			board_space[1] += .095
-		elif count > 1 and count < 10:
 			board_space[0] += .07
-		elif count > 11 and count < 20:
+		elif count == 11 or count == 20:
 			board_space[1] -= .07
-		elif count > 21 and count < 30:
+		elif count == 21 or count == 30:
 			board_space[0] -= .07
-		elif count > 31 and count < 40:
+		elif count == 31:
 			board_space[1] += .07
+		elif count > 1 and count < 10:
+			board_space[0] += .0398
+		elif count > 11 and count < 20:
+			board_space[1] -= .0398
+		elif count > 21 and count < 30:
+			board_space[0] -= .0398
+		elif count > 31 and count < 40:
+			board_space[1] += .0398
 		
 	return board_space
 
@@ -348,7 +348,7 @@ def main():
 	rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
 
 	# Starting board space
-	board_space = ([.635, 0.363, -0.135]) # Go
+	board_space = ([0.469764, 0.190833, -0.135]) # Go
 	count = 0
 	# TODO pass in dice roll
 	dice_roll = 1
@@ -367,4 +367,4 @@ def main():
 	return 0
 
 if __name__ == '__main__':
-    sys.exit(main())
+	sys.exit(main())
