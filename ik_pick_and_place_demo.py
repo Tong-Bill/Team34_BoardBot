@@ -219,11 +219,11 @@ class PickAndPlace(object):
 
 def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
                        table_reference_frame="world",
-                       monopoly_pose=Pose(position=Point(x=1.0, y=0.0, z=0.7825)),
+                       monopoly_pose=Pose(position=Point(x=0.575227, y=0.010211, z=0.75)),
                        monopoly_reference_frame="world",
                        redDie_pose=Pose(position=Point(x=1.01, y=-0.28, z=0.79)),
                        redDie_reference_frame="world",
-                       tophat_pose=Pose(position=Point(x=0.635, y=0.363, z=0.785)),
+                       tophat_pose=Pose(position=Point(x=0.469764, y=0.190833, z=0.791294)),
                        tophat_reference_frame="world"):
     # Get Models' Path
     model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
@@ -301,23 +301,23 @@ def get_position(count, dice_roll, board_space):
 		count += 1
 		if count >= 40:
 			count -= 40
-			board_space = ([0.635, 0.363, -0.135])
+			board_space = ([0.469764, 0.190833, -0.135])
 		elif count == 1 or count == 10:
-			board_space[0] += .095
-		elif count == 11 or count == 20:
-			board_space[1] -= .095
-		elif count == 21 or count == 30:
-			board_space[0] -= .095
-		elif count == 31:
-			board_space[1] += .095
-		elif count > 1 and count < 10:
 			board_space[0] += .07
-		elif count > 11 and count < 20:
+		elif count == 11 or count == 20:
 			board_space[1] -= .07
-		elif count > 21 and count < 30:
+		elif count == 21 or count == 30:
 			board_space[0] -= .07
-		elif count > 31 and count < 40:
+		elif count == 31:
 			board_space[1] += .07
+		elif count > 1 and count < 10:
+			board_space[0] += .0398
+		elif count > 11 and count < 20:
+			board_space[1] -= .0398
+		elif count > 21 and count < 30:
+			board_space[0] -= .0398
+		elif count > 31 and count < 40:
+			board_space[1] += .0398
 		
 	return board_space
 
@@ -348,7 +348,7 @@ def main():
 	rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
 
 	# Starting board space
-	board_space = ([.635, 0.363, -0.135]) # Go
+	board_space = ([0.469764, 0.190833, -0.135]) # Go
 	count = 0
 	# TODO pass in dice roll
 	dice_roll = 1
@@ -367,58 +367,4 @@ def main():
 	return 0
 
 if __name__ == '__main__':
-    sys.exit(main())
-#def movementListener():
-    # Load Gazebo Models via Spawning Services
-    # Note that the models reference is the /world frame
-    # and the IK operates with respect to the /base frame
-#	load_gazebo_models()
-    # Remove models from the scene on shutdown
-#	rospy.on_shutdown(delete_gazebo_models)
-
-    # Wait for the All Clear from emulator startup
-#	rospy.wait_for_message("/robot/sim/started", Empty)
-	
-	#rospy.Subscriber("AI", String)
-
-#	limb = 'left'
-#	hover_distance = 0.15 # meters
-    # Starting Joint angles for left arm
-#	starting_joint_angles = {'left_w0': 0.6699952259595108,
- #                               'left_w1': 1.030009435085784,
-  #                              'left_w2': -0.4999997247485215,
-   #                             'left_e0': -1.189968899785275,
-    #                            'left_e1': 1.9400238130755056,
- #                               'left_s0': -0.08000397926829805,
-  #                              'left_s1': -0.9999781166910306}
-	#pnp = PickAndPlace(limb, hover_distance)
-    # An orientation for gripper fingers to be overhead and parallel to the obj
-	#rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
-
-	# Starting board space
-#	board_space = ([0.468, 0.363, -0.14]) # Go
-#	count = 0
-    
-    # Move to the desired starting angles
-#	pnp.move_to_start(starting_joint_angles)
-    
-    # Move around the monopoly board space by space
-#	pnp.pick(board_space, rot) 
-#	dice_roll = 1
-#	count += dice_roll
-#	board_space = get_position(count, dice_roll, board_space)
-	
-#	pnp.place(board_space, rot)
-#	pnp.move_to_start(starting_joint_angles)
-  
-#	return 0
-
-#if __name__ == '__main__':
-    #try:
-    	#rospy.init_node("pick_and_place", anonymous=True)
-    	#place = PickAndPlace()
-   		#rospy.spin()
-    #except rospy.ROSInterruptException:
-    #	pass
-   # movementListener()
- #   """
+	sys.exit(main())
