@@ -8,12 +8,24 @@ This file contains rule logic for Monopoly. It is designed to be used with an AI
 that will make decisions based on the responses of the rules
 """
 
-import rospy
+
+
+# TODO:
+
+# Auctions: unbought property, final house/hotel
+# Trades: property, money, Get out of Jail cards
+# Verify that rent works
+# Go over property buying/selling mechanics with AI.py
+
+
+
+
+#import rospy
 import sys
 import os
 import random           # for random dice values
 from math import ceil   # for rounding
-from std_msgs.msg import String
+#from std_msgs.msg import String
 
 def gameSetup():
     print("\n\nBegin setup:")
@@ -181,22 +193,41 @@ class TitleDeedCards(object):
          else:
              print("Payment received, property is unmortgaged. You may collect rent on it.")
 
+# This class handles the mechanics of building; it will only be called if the player has met financial conditions
 class Buildings(object):
-    # Quantity of houses and hotels. Cannot build if all buildings are allocated
-    houseCount = 34
-    hotelCount = 13
+    # Quantity of houses and hotelsi in game. Cannot build if all buildings are allocated
+    house_count = 34
+    hotel_count = 13
 
-    """
-    Need a list of buildings on all properties of a space; must build evenly!
-    def build(self, currentBuildStatus):
-        if currentBuildStatus = 0 and houseCount: # Card set is owned by no houses exist on this property
-            
-    def sell(self, currentBuildStatus):
-    """
+    # numHouses: number of houses on the property to be built on
+    # lowest_set_house_count: all properties in set must be within 1 house of each other
+    # mortgage: bool, checks if any properties in the set are mortgaged
+    def buildHouse(self, num_houses, lowest_set_house_count, mortgage):
+        if mortgage is True:
+            return "error: mortgaged properties in set" 
+        elif numHouses > 4:
+            return "error: numHouses > 4" # Attempted to build a 5th house
+        elif numHouses > lowest_set_house_count + 1
+            return "error: numHouses not equal" # Properties in set do not have an equal number of houses
+        elif houseCount <= 0:
+            return "error: houseCount = 0"  # No houses remaining in supply
 
+        houseCount = houseCount - 1
+        return "house"  
+        
+    def buildHotel(self, numHouses, lowest_set_house_countmortgage):
+        if mortgage is True:
+            return "error: mortgaged properties in set"
+        elif numHouses < 4:
+            return "error: numHouses < 4" # must have 4 houses before a hotel can be built
+        elif hotelCount <= 0:
+            return "error: hotelCount = 0" # No hotel remaining in supply
+
+        hotel_count = hotel_count - 1
+        house_count = house_count + 4   # houses must be return to supply!
+        return "hotel; houses -4"
 
 class ChanceCommunityCards(object):
-
     # Card Schema: 
     # {CardID number = [<actions to take>, <card nickname>]
     # All movement cards allow the player to gain $200 for passing Go
@@ -235,7 +266,11 @@ class ChanceCommunityCards(object):
             15:["Move to 10; Jail", "Go directly to Jail"], # Do not gain 200 for passing Go
             16:["Keep; use to leave jail", "Get-out-of-Jail-free"]
             }
-    
+   
+    def parseCard(self, card_ID, card_type)
+        if card_type == "community":
+            return 
+
 
 # Message Topic: Turn information
 # Contents:
