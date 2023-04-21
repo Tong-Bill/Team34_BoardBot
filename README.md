@@ -39,8 +39,7 @@ Open another terminal and enter:
 ```
 cd ~/workspace
 source devel.setup.bash
-rosrun baxter_sim_examples
-ik_pick_and_place_demo.py
+rosrun baxter_sim_examples ik_pick_and_place_demo.py
 ```
 You should see the Baxter robot begin to move its arms and execute the demo sequence
 

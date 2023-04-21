@@ -1,0 +1,62 @@
+<!--
+Author: Bill Tong
+Objective: Login form to authorize users
+
+Image taken from:
+https://www.amazon.com/Hasbro-00009-482-Monopoly-Board/dp/B00CV5PN2W
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Form</title>
+    <!--linking style.css file-->
+    <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+    <div class="parent">
+        <!--Displaying images on login & signup page-->
+        <div class="login-photo"></div>
+        <div class="signup-photo"></div>
+
+        <div class="container">
+            <div class="form" id="login-form">
+                <h1 class="title">login</h1>
+                <div class="fields">
+                    <!--Prompt user for Username & Password-->
+                    <input type="text" placeholder="username">
+                    <input type="password" placeholder="password">
+                </div>
+                <div class="submit-container">
+                    <a href="index.html">
+                    <button type="submit" class="btn">login</button>
+                    </a>
+                    <p class="link" onclick="switchTemplate('create')">Create New Account</p>
+                </div>
+            </div>
+            <div class="form" id="signup-form">
+                <h1 class="title">sign up</h1>
+                <div class="fields">
+                    <!--Prompt user to enter personal information to create account-->
+                    <input type="text" placeholder="name">
+                    <input type="text" placeholder="username">
+                    <input type="number" placeholder="Invitation Code">
+                    <input type="password" placeholder="password">
+                </div>
+                <div class="submit-container">
+                    <button type="submit" class="btn">sign up</button>
+                    <p class="link" onclick="switchTemplate('login')">Have an existing account?</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!--linking switchform.js file-->
+    <script src="switchform.js"></script>
+    
+</body>
+</html>

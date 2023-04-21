@@ -1,9 +1,10 @@
 /*
-Author: Bill Tong (Team 34)
-Project: BoardBot
-Class: CS425/426
+Author: Bill Tong
+Objective: Adds dynamic functionality to connection page
 */
+
 var app = new Vue({
+	// Set ip address for index.html to search
 	el: '#app',
 	data:{
 		connected: false,
@@ -13,6 +14,8 @@ var app = new Vue({
 		logs: [],
 	},
 	methods: {
+		// Upon user clicking connect, attempt to establish connection
+		// Appropriate response should be written in message log based on whether connection status.
 		connect: function(){
 			this.logs.unshift('CONNECTING...')
 			this.ros = new ROSLIB.Ros({
@@ -34,11 +37,13 @@ var app = new Vue({
 				this.connected = false
 			})
 		},
+		// Upon user clicking disconnect, the connection should close
 		disconnect: function(){
 			this.ros.close()
 		},
+		// Setup camera interface & connection to CvBridege
 		setCamera: function(){
-			console.log('set camera method')
+			console.log('open camera')
 			this.cameraViewer = new MJPEGCANVAS.Viewer({
 				divID: 'mjpeg',
 				host: '192.168.248.130',
