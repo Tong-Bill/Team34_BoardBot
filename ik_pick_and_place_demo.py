@@ -221,9 +221,9 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
                        table_reference_frame="world",
                        monopoly_pose=Pose(position=Point(x=0.575227, y=0.010211, z=0.75)),
                        monopoly_reference_frame="world",
-                       redDie_pose=Pose(position=Point(x=1.01, y=-0.28, z=0.79)),
-                       redDie_reference_frame="world",
-                       tophat_pose=Pose(position=Point(x=0.469764, y=0.190833, z=0.791294)),
+#                       redDie_pose=Pose(position=Point(x=1.01, y=-0.28, z=0.79)),
+#                       redDie_reference_frame="world",
+                       tophat_pose=Pose(position=Point(x=0.474062, y=0.194032, z=0.791294)),
                        tophat_reference_frame="world"):
     # Get Models' Path
     model_path = rospkg.RosPack().get_path('baxter_sim_examples')+"/models/"
@@ -239,9 +239,9 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
         monopoly_xml=monopoly_file.read().replace('\n', '') 
 
     # Load RedDie SDF
-    redDie_xml = ''
-    with open (model_path + "redDie/model.sdf", "r") as redDie_file:
-        redDie_xml=redDie_file.read().replace('\n', '') 
+#    redDie_xml = ''
+#    with open (model_path + "redDie/model.sdf", "r") as redDie_file:
+#        redDie_xml=redDie_file.read().replace('\n', '') 
         
     # Load Tophat SDF
     tophat_xml = ''
@@ -268,13 +268,13 @@ def load_gazebo_models(table_pose=Pose(position=Point(x=1.0, y=0.0, z=0.0)),
         rospy.logerr("Spawn SDF service call failed: {0}".format(e))
 
     # Spawn RedDie SDF
-    rospy.wait_for_service('/gazebo/spawn_sdf_model')
-    try:
-        spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
-        resp_sdf = spawn_sdf("redDie", redDie_xml, "/",
-                             redDie_pose, redDie_reference_frame)
-    except rospy.ServiceException, e:
-        rospy.logerr("Spawn SDF service call failed: {0}".format(e))
+#    rospy.wait_for_service('/gazebo/spawn_sdf_model')
+#    try:
+#        spawn_sdf = rospy.ServiceProxy('/gazebo/spawn_sdf_model', SpawnModel)
+#        resp_sdf = spawn_sdf("redDie", redDie_xml, "/",
+#                             redDie_pose, redDie_reference_frame)
+#    except rospy.ServiceException, e:
+#        rospy.logerr("Spawn SDF service call failed: {0}".format(e))
     # Spawn Tophat SDF
     rospy.wait_for_service('/gazebo/spawn_sdf_model')
     try:
@@ -301,23 +301,23 @@ def get_position(count, dice_roll, board_space):
 		count += 1
 		if count >= 40:
 			count -= 40
-			board_space = ([0.469764, 0.190833, -0.135])
+			board_space = ([0.474062, 0.194032, -0.145])
 		elif count == 1 or count == 10:
-			board_space[0] += .07
+			board_space[0] += .025863
 		elif count == 11 or count == 20:
-			board_space[1] -= .07
+			board_space[1] -= .025863
 		elif count == 21 or count == 30:
-			board_space[0] -= .07
+			board_space[0] -= .025863
 		elif count == 31:
-			board_space[1] += .07
+			board_space[1] += .025863
 		elif count > 1 and count < 10:
-			board_space[0] += .0398
+			board_space[0] += .01928
 		elif count > 11 and count < 20:
-			board_space[1] -= .0398
+			board_space[1] -= .01928
 		elif count > 21 and count < 30:
-			board_space[0] -= .0398
+			board_space[0] -= .01928
 		elif count > 31 and count < 40:
-			board_space[1] += .0398
+			board_space[1] += .01928
 		
 	return board_space
 
@@ -348,10 +348,10 @@ def main():
 	rot = [-0.0249590815779, 0.999649402929, 0.00737916180073, 0.00486450832011]
 
 	# Starting board space
-	board_space = ([0.469764, 0.190833, -0.135]) # Go
+	board_space = ([0.474062, 0.194032, -0.135]) # Go
 	count = 0
 	# TODO pass in dice roll
-	dice_roll = 1
+	dice_roll = 5
     
     # Move to the desired starting angles
 	pnp.move_to_start(starting_joint_angles)
