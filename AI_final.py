@@ -360,13 +360,19 @@ class Actions(Assets, rules.ChanceCommunityCards):
       for color in prop:
         if color in self.playerOwnedSets and choice in prop[color]:
           choice2 = input("Are your sure? You will not be able to buy houses in this color set anymore [y/n]: ")
-          match choice2:
+          """match choice2:
             case "y":
               self.gainMoney(self.cards[choice][2])
               self.playerOwnedProperties[color][choice][2] = True
               return
             case "n":
-              return
+              return"""
+          if choice2 == "y":
+            self.gainMoney(self.cards[choice][2])
+            self.playerOwnedProperties[color][choice][2] = True
+            return
+          elif choice2 == "n":
+            return
         elif choice in prop[color]:
           self.gainMoney(self.cards[choice][2])
           self.playerOwnedProperties[color][choice][2] = True
