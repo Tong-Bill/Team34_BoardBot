@@ -1,7 +1,7 @@
 import rules
 from time import sleep
 import random as rd
-
+#Some commented out code is made using match/case, which is Python 3.10, which is too high of a version for Baxter. I kept it in here as it is code I have written. 
 
 #new Board which is a dict that is [type of square, color/name, name, weight]. Weight is used for selling properties and is found using data online on which properties are the most valuable.
 class board(rules.BoardSpaces, rules.TitleDeedCards):
@@ -71,6 +71,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
     x = self.currPos
     if self.isPlayer == True:
       x = self.playerPos
+    self.space = x
     self.square = self.Board[x][0]
     if self.square == -2:
       self.name = self.Board[x][1]
@@ -80,6 +81,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
       self.price = self.board[x][3]
 
   def updatePosition(self, sum):
+    self.move = sum
     if self.isPlayer == True:
       self.playerPos += sum
       if self.playerPos >= 40:
@@ -116,9 +118,9 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
           self.giveMoney(75)"""
 
       if self.name == "CommunityChest":
-        self.pullCard()
+        self.pullCard(self.name)
       elif self.name == "Chance":
-        self.pullCard()
+        self.pullCard(self.name)
       elif self.name == "IncomeTax":
         if self.isPlayer == False:
           self.giveMoney(min(200, self.robotMoneySum * 0.1))
@@ -135,7 +137,6 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
         print("I landed on " + self.name)
         if self.square == -1:
           self.payRent()
-        self.payRent()
       else:
         print("You've landed on " + self.name)
         if self.square == 1:
@@ -211,7 +212,7 @@ class Assets(board):
         "Shortline": [False, 0, False]
       },
       "Utilities": {
-        "Electric Company:": [False, 0, False],
+        "Electric Company": [False, 0, False],
         "Water Works": [False, 0, False]
       },
     }
@@ -262,7 +263,7 @@ class Assets(board):
         "Shortline": [False, 0, False]
       },
       "Utilities": {
-        "Electric Company:": [False, 0, False],
+        "Electric Company": [False, 0, False],
         "Water Works": [False, 0, False]
       },
     }
@@ -270,8 +271,8 @@ class Assets(board):
     self.robotNumProperties, self.playerNumProperties = 0, 0
     self.house, self.playerHouse, self.hotel, self.playerHotel = 0, 0, 0, 0
     self.ownedSets, self.playerOwnedSets = set(), set()
-    #self.listOfCC = rd.sample(range(1, 17), 16)
-    self.listOfCC = rd.sample(range(1, 7), 6)
+    self.listOfCC = rd.sample(range(1, 17), 16)
+    self.listOfChance = rd.sample(range(1, 17), 16)
 
   def gainMoney(self, amount):
     if self.isPlayer == False:
@@ -299,16 +300,20 @@ class Assets(board):
 
   def closest(self, value):
     cash = []
-    for k in self.robotMoney:
-      if self.robotMoney[k] > 0:
-        cash.append(k)
+    if self.isPlayer == False:
+      for k in self.robotMoney:
+        if self.robotMoney[k] > 0:
+          cash.append(k)
+    else:
+      for k in self.playerMoney:
+        if self.playerMoney[k] > 0:
+          cash.append(k)
     return cash[min(range(len(cash)), key = lambda i: abs(cash[i] - value))]
     
   #FIX IMMEDIATELY. Cash cannot go negative.
   def giveMoney(self, amount):
     if self.isPlayer == False:
       self.robotMoneySum -= amount
-      tmp = 0
       while amount > 0:
         x = self.closest(amount)
         try:
@@ -324,7 +329,6 @@ class Assets(board):
           
     else:
       self.playerMoneySum -= amount
-      tmp = 0
       while amount > 0:
         x = self.closest(amount)
         try:
@@ -391,8 +395,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
           self.robotOwnedProperty.append(self.name)
           self.robotNumProperties += 1
           #Social aspect here, saying that they bought xxx property.
-          if self.isASet(self.color) and (self.color != "Utilities"
-                                          or self.color != "Railroads"):
+          if self.isASet(self.color):
             self.ownedSets.add(self.color)
 
       else:
@@ -403,8 +406,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
           self.playerOwnedProperties[self.color][self.name][0] = True
           self.playerOwnedProperty.append(self.name)
           self.playerNumProperties += 1
-          if self.isASet(self.color) and (self.color != "Utilities"
-                                          or self.color != "Railroads"):
+          if self.isASet(self.color):
             self.ownedSets.add(self.color)
 
   def buyHouse(self, color):
@@ -447,9 +449,9 @@ class Actions(Assets, rules.ChanceCommunityCards):
             return
 
   def addHouse(self, color, choice):
-    x = self.robotMoneySum - self.getBuildCost(choice)
+    price = self.robotMoneySum - self.getBuildCost(choice)
 
-    if x >= 350 and self.isPlayer == False:
+    if price >= 350 and self.isPlayer == False:
       print("Adding a house to " + choice)
       self.giveMoney(self.cards[choice][1])
       if self.isPlayer == True:
@@ -506,9 +508,37 @@ class Actions(Assets, rules.ChanceCommunityCards):
           self.gainMoney(self.cards[choice][2])
           self.playerOwnedProperties[color][choice][2] = True
     else:
-      return
-
+      notSet = []
+      finSet = []
+      p = ""
+      y = 0
+      for prop in self.robotOwnedProperty:
+        for color in self.ownedProperties:
+          if prop in self.ownedProperties[color] and self.isASet(color):
+            finSet.append(prop)
+          elif prop in self.ownedProperties[color] and self.isASet(color) == False:
+            notSet.append(prop)
+      
+      if len(notSet) > 0 and self.house == 0:
+        y = self.cards[notSet[0]][1]
+        for prop in notSet:
+          if self.cards[prop][1] > y:
+            p = prop
+            y = self.cards[prop][1]
+      elif len(notSet) == 0 and self.house == 0:
+        y = self.cards[finSet[0]][1]
+        for prop in finSet:
+          if self.cards[prop][1] > y:
+            p = prop
+            y = self.cards[prop][1]
+      self.gainMoney(self.cards[p][1])
+      for color in self.ownedProperties:
+        if p in self.ownedProperties[color]:
+          self.ownedProperties[color][p][2] = True
+          break
+        
   def readCardCC(self, cardNum):
+    self.namingShortcut()
     #social here, talking about the card pulled.
     if cardNum == 1:
       if self.isPlayer == False:
@@ -516,9 +546,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
       else:
         self.giveMoney(self.playerHouse * 40 + self.playerHotel * 110)
     elif cardNum == 2:
-      self.currPos = 0
-      self.passGo()
-
+      self.updatePosition(40-self.space)
     elif cardNum == 3:
       self.gainMoney(10)
     elif cardNum == 4:
@@ -527,6 +555,27 @@ class Actions(Assets, rules.ChanceCommunityCards):
       self.gainMoney(100)
     elif cardNum == 6:
       self.gainMoney(10 * self.numPlayers)
+    elif cardNum == 7:
+      self.gainMoney(25)
+    elif cardNum == 8:
+      self.giveMoney(100)
+    elif cardNum == 9:
+      self.gainMoney(20)
+    elif cardNum == 10:
+      self.giveMoney(50)
+    elif cardNum == 11:
+      self.gainMoney(100)
+    elif cardNum == 12:
+      self.gainMoney(100)
+    elif cardNum == 13:
+      self.gainMoney(200)
+    elif cardNum == 14:
+      self.giveMoney(50)
+    elif cardNum == 15:
+      self.goToJail()
+    elif cardNum == 16:
+      self.getJailCard()
+      
     """match cardNum:
       case 1:
         if self.isPlayer == False:
@@ -547,16 +596,148 @@ class Actions(Assets, rules.ChanceCommunityCards):
       case 6:
         return False"""
 
-  def pullCard(self):
-    self.card = self.listOfCC.pop(0)
-    self.readCardCC(self.card)
-    self.listOfCC.append(self.card)
-    if self.currPos in [2, 17, 33]:
+  def readCardChance(self, cardNum):
+    if cardNum == 1:
+      if self.isPlayer == False:
+        self.giveMoney(self.house * 25 + self.hotel * 100)
+      else:
+        self.giveMoney(self.playerHouse * 25 + self.playerHotel * 100)
+      return
+    elif cardNum == 2:
+      self.namingShortcut()
+      self.updatePosition(40-self.space)
+      return
+    elif cardNum == 3 or cardNum == 8:
+      rail = [15, 25, 35]
+      t = 0
+      if self.isPlayer == False:
+        for pos in rail:
+          if pos > self.currPos:
+            self.updatePosition(pos-self.currPos)
+            break
+          elif self.currPos == 36:
+            self.updatePosition(9)
+            break
+        self.namingShortcut()
+        if self.square == -1:
+          self.payRent()
+        elif self.square == 0:
+          self.buy()
+      else:
+        for pos in rail:
+          if pos > self.playerPos:
+            self.updatePosition(pos - self.playerPos)
+            break
+          elif self.playerPos == 36:
+            self.updatePosition(9)
+            break
+        self.namingShortcut()
+        if self.square == 1:
+          self.payRent()
+        elif self.square == 0:
+          choice = input("Would you like to buy the railroad? [y/n]")
+          if choice == "y":
+            self.buy()
+          else:
+            return
+    elif cardNum == 4:
+      self.namingShortcut()
+      if self.space > 24:
+        self.updatePosition(64-self.space)
+      else:
+        self.updatePosition(24-self.space)
+      return
+    elif cardNum == 5:
+      self.namingShortcut()
+      self.updatePosition(39-self.space)
+      return
+    elif cardNum == 6:
+      self.namingShortcut()
+      self.updatePosition(45-self.space)
+      return
+    elif cardNum == 7:
+      util = [12, 28]
+      if self.isPlayer == False:
+        for pos in util:
+          if pos > self.currPos:
+            self.updatePosition(pos-self.currPos)
+            break
+          elif self.currPos == 36:
+            self.updatePosition(16)
+            break
+        self.namingShortcut()
+        if self.square == -1:
+          self.payRent()
+        elif self.square == 0:
+          self.buy()
+      else:
+        for pos in util:
+          if pos > self.playerPos:
+            self.updatePosition(pos - self.playerPos)
+            break
+          elif self.playerPos == 36:
+            self.updatePosition(16)
+            break
+        self.namingShortcut()
+        if self.square == 1:
+          self.payRent()
+        elif self.square == 0:
+          choice = input("Would you like to buy the Utility? [y/n]")
+          if choice == "y":
+            self.buy()
+          else:
+            return
+    elif cardNum == 9:
+      self.namingShortcut()
+      if self.space > 11:
+        self.updatePosition(51-self.space)
+      else:
+        self.updatePosition(11-self.space)
+      return
+    elif cardNum == 10:
+      self.updatePosition(-3)
+      return
+    elif cardNum == 11:
+      self.gainMoney(150)
+    elif cardNum == 12:
+      self.gainMoney(50)
+    elif cardNum == 13:
+      self.giveMoney(15)
+    elif cardNum == 14:
+      if self.isPlayer == False:
+        self.giveMoney(50)
+        self.isPlayer = True
+        self.gainMoney(50)
+        self.isPlayer = False
+        return
+      else:
+        self.giveMoney(50)
+        self.isPlayer = False
+        self.gainMoney(50)
+        self.isPlayer = True
+        return
+    elif cardNum == 15:
+      self.goToJail()
+      return
+    elif cardNum == 16:
+      self.getJailCard()
+    
+        
+        
+    
+  def pullCard(self, cardType):
+    self.namingShortcut()
+    if cardType == "CommunityChest":
       self.card = self.listOfCC.pop(0)
       self.readCardCC(self.card)
       self.listOfCC.append(self.card)
-    elif self.currPos in [7, 22, 36]:
-      return
+    elif cardType == "Chance":
+      self.card = self.listOfChance.pop(0)
+      self.readCardChance(self.card)
+      if self.card != 16:
+        self.listOfChance.append(self.card)
+      else:
+        return
 
   def payRent(self):
     self.namingShortcut()
@@ -564,12 +745,17 @@ class Actions(Assets, rules.ChanceCommunityCards):
       if self.playerOwnedProperties[self.color][self.name][2] == True:
         print("This property is mortgaged.")
       elif self.square == -1 and self.color in self.playerOwnedSets:
-        house = self.playerOwnedProperties[self.color][self.name][1]
-        if house > 4:
-          self.giveMoney(self.rentLookup(self.name, True, False, True))
+        if self.color == "Utilities":
+          if self.isASet("Utilities"):
+            self.giveMoney(self.move * 10)
+          else:
+            self.giveMoney(self.move * 4)
         else:
-          self.giveMoney(
-            self.rentLookup(self.name, True, house))
+          house = self.playerOwnedProperties[self.color][self.name][1]
+          if house > 4:
+            self.giveMoney(self.rentLookup(self.name, True, False, True))
+          else:
+            self.giveMoney(self.rentLookup(self.name, True, house))
       elif self.square == -1:
         self.giveMoney(self.rentLookup(self.name))
       #social here, anger.
@@ -610,16 +796,26 @@ class Jail(Actions):
 
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
-    self.inJail = False
-
+    self.robotInJail = False
+    self.playerInJail = False
+    self.robotJailFree = False
+    self.playerJailFree = False
+    
   def goToJail(self):
     #Trump voice
-    if self.currPos == 30:
-      self.inJail = True
-    elif self.currPos in [2, 7, 17, 22, 33, 36]:
-      if self.pullCard() == 15:
-        self.inJail = True
+    if self.isPlayer == False:
+      self.currPos = 10
+      self.robotInJail = True
+    else:
+      self.playerPos = 10
+      self.playerInJail = True
 
+  def getJailCard(self):
+    if self.isPlayer == True:
+      self.playerJailFree = True
+    else:
+      self.robotJailFree = True
+      
   def payFine(self):
     #Trump voice
     self.giveMoney(50)
@@ -750,6 +946,7 @@ class PlayGame(Decisions):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.d = Decisions()
+    self.doubleCounter = 0
 
   def startGame(self):
     robotRoll = rules.gameSetup()
@@ -764,6 +961,9 @@ class PlayGame(Decisions):
 
   def robotTurn(self):
     r = rules.rollDice()
+    print("I rolled (" + str(r[0]) + ", " + str(r[1]) + ")")
+    if r[0] == r[1]:
+      self.doubleCounter += 1
     self.d.updatePosition(r[0] + r[1])
     self.d.robotDecision()
     self.d.endTurn()
