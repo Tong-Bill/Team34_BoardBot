@@ -8,7 +8,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
   Board = {
     0: [-2, "Go"],
     1: [0, "Brown", "Mediterranean Avenue"],
-    2: [-2, "CommunityChest"],
+    2: [-2, "Community Chest"],
     3: [0, "Brown", "Baltic Avenue"],
     4: [-2, "IncomeTax"],
     5: [0, "Railroad", "Reading Railroad"],
@@ -83,15 +83,25 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
   def updatePosition(self, sum):
     self.move = sum
     if self.isPlayer == True:
-      self.playerPos += sum
-      if self.playerPos >= 40:
-        self.playerPos -= 40
-        self.passGo()
+      if self.playerPos == 30:
+        self.playerPos += sum
+        if self.playerPos >= 40:
+          self.playerPos -= 40
+      else:
+        self.playerPos += sum
+        if self.playerPos >= 40:
+          self.playerPos -= 40
+          self.passGo()
     else:
-      self.currPos += sum
-      if self.currPos >= 40:
-        self.currPos -= 40
-        self.passGo()
+      if self.currPos == 30:
+        self.currPos += sum
+        if self.currPos >= 40:
+          self.currPos -= 40
+      else:
+        self.currPos += sum
+        if self.currPos >= 40:
+          self.currPos -= 40
+          self.passGo()
 
     self.namingShortcut()
 
@@ -117,7 +127,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
         case "Luxury Tax":
           self.giveMoney(75)"""
 
-      if self.name == "CommunityChest":
+      if self.name == "Community Chest":
         self.pullCard(self.name)
       elif self.name == "Chance":
         self.pullCard(self.name)
@@ -127,8 +137,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
         else:
           self.giveMoney(min(200, self.playerMoneySum * 0.1))
       elif self.name == "Go To Jail":
-        self.currPos = 10
-        self.inJail = True
+        self.goToJail()
       elif self.name == "Luxury Tax":
         self.giveMoney(75)
 
@@ -154,6 +163,9 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
     elif change == "oppBuy":
       self.square = -1
     print("Board state updated.")
+
+def isDouble(self, d1, d2):
+  return d1 == d2
 
 
 class Assets(board):
@@ -312,6 +324,7 @@ class Assets(board):
     
   #FIX IMMEDIATELY. Cash cannot go negative.
   def giveMoney(self, amount):
+    
     if self.isPlayer == False:
       self.robotMoneySum -= amount
       while amount > 0:
@@ -538,6 +551,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
           break
         
   def readCardCC(self, cardNum):
+    print("I pulled No." + str(cardNum))
     self.namingShortcut()
     #social here, talking about the card pulled.
     if cardNum == 1:
@@ -597,6 +611,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
         return False"""
 
   def readCardChance(self, cardNum):
+    print("I pulled No." + str(cardNum))
     if cardNum == 1:
       if self.isPlayer == False:
         self.giveMoney(self.house * 25 + self.hotel * 100)
@@ -726,8 +741,7 @@ class Actions(Assets, rules.ChanceCommunityCards):
         
     
   def pullCard(self, cardType):
-    self.namingShortcut()
-    if cardType == "CommunityChest":
+    if cardType == "Community Chest":
       self.card = self.listOfCC.pop(0)
       self.readCardCC(self.card)
       self.listOfCC.append(self.card)
@@ -738,6 +752,15 @@ class Actions(Assets, rules.ChanceCommunityCards):
         self.listOfChance.append(self.card)
       else:
         return
+  def receiveRent(self, value):
+    if self.isPlayer == False:
+      self.isPlayer = True
+      self.gainMoney(value)
+      self.isPlayer = False
+    else:
+      self.isPlayer = False
+      self.gainMoney(value)
+      self.isPlayer = True
 
   def payRent(self):
     self.namingShortcut()
@@ -748,16 +771,21 @@ class Actions(Assets, rules.ChanceCommunityCards):
         if self.color == "Utilities":
           if self.isASet("Utilities"):
             self.giveMoney(self.move * 10)
+            self.receiveRent(self.move * 10)
           else:
             self.giveMoney(self.move * 4)
+            self.receiveRent(self.move * 4)
         else:
           house = self.playerOwnedProperties[self.color][self.name][1]
           if house > 4:
             self.giveMoney(self.rentLookup(self.name, True, False, True))
+            self.receiveRent(self.rentLookup(self.name, True, False, True))
           else:
             self.giveMoney(self.rentLookup(self.name, True, house))
+            self.receiveRent(self.rentLookup(self.name, True, house))
       elif self.square == -1:
         self.giveMoney(self.rentLookup(self.name))
+        self.receiveRent(self.rentLookup(self.name))
       #social here, anger.
 
     else:
@@ -802,12 +830,15 @@ class Jail(Actions):
     self.playerJailFree = False
     
   def goToJail(self):
+    self.namingShortcut()
     #Trump voice
     if self.isPlayer == False:
       self.currPos = 10
       self.robotInJail = True
+      self.endTurn()
     else:
       self.playerPos = 10
+      self.endTurn()
       self.playerInJail = True
 
   def getJailCard(self):
@@ -815,26 +846,52 @@ class Jail(Actions):
       self.playerJailFree = True
     else:
       self.robotJailFree = True
-      
+
+  def useCard(self):
+    if self.isPlayer == False and self.robotJailFree == True:
+      self.robotInJail = False
+      self.robotJailFree = False
+    elif self.isPlayer == True and self.playerJailFree == True:
+      self.playerInJail = False
+      self.playerJailFree = False
+    if len(self.listOfCC) != 16:
+      self.listOfCC.append(16)
+    elif len(self.listofChance) != 16:
+      self.listOfChance.append(16)
+
   def payFine(self):
     #Trump voice
     self.giveMoney(50)
+    if self.isPlayer == False:
+      self.robotInJail = False
+      self.endTurn()
+    else:
+      self.playerInJail = False
+      self.endTurn()
 
   def rollOut(self):
     temp = rules.rollDice()
     if temp[0] == temp[1]:
       #Bragging
-      return True
-    return False
+      if self.isPlayer == False:
+        self.robotInJail = False
+      else:
+        self.playerInJail = False
+    else:
+      self.endTurn()
 
 
 class Decisions(Jail):
+
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    self.doubleCounter = 0
 
   def playerDecisions(self):
     c = self.playerStartTurn()
     endTurn = False
     while endTurn == False:
-      if c == 1:
+      if c == 1 or c == 2:
         choice = int(
           input(
             "(1) Buy\n(2) Sell Houses\n(3)Mortgage Properties\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) End Turn: "
@@ -873,8 +930,16 @@ class Decisions(Jail):
         break
       elif choice == 7:
         r = rules.rollDice()
+        print("You rolled (" + str(r[0]) + "," + str(r[1]) + ").")
         self.updatePosition(r[0] + r[1])
         c = 1
+    if c == 2:
+      self.doubleCounter += 1
+      if self.doubleCounter == 4:
+        self.goToJail()
+      else:
+        self.playerDecisions()
+      
     return
     """match int(choice):
         case 1:
@@ -916,8 +981,12 @@ class Decisions(Jail):
     playerIn = input("[y/n]: ")
     if playerIn == "y":
       r = rules.rollDice()
+      print("You rolled (" + str(r[0]) + "," + str(r[1]) + ").")
       self.updatePosition(r[0] + r[1])
-      return 1
+      if r[0] == r[1]:
+        return 2
+      else:
+        return 1
     return 0
     """match playerIn:
       case "y":
@@ -926,27 +995,33 @@ class Decisions(Jail):
         return 1
       case "n":
         return 0"""
-
+    
   def robotDecision(self):
-    ownedWeights = {}
-    self.namingShortcut()
-    if self.square == 0:
-      self.buy()
-    elif self.square == -1:
-      self.payRent()
-    if len(self.ownedSets) > 0:
-      for color in self.ownedSets:
-        ownedWeights[color] = self.weights[color]
-      max_key = max(ownedWeights, key=ownedWeights.get)
-      self.buyHouse(max_key)
+    if self.robotInJail == True:
+      if self.robotJailFree == True:
+        print("I will use my card!")
+        self.useCard()
+      elif len(self.playerOwnedProperty) > 7 and self.robotMoneySum < 500:
+        print("I will attempt to roll out!")
+        self.rollOut()
+      else:
+        print("I will pay the fine!")
+        self.payFine()
+    else:
+      ownedWeights = {}
+      self.namingShortcut()
+      if self.square == 0:
+        self.buy()
+      elif self.square == -1:
+        self.payRent()
+      if len(self.ownedSets) > 0:
+        for color in self.ownedSets:
+          ownedWeights[color] = self.weights[color]
+        max_key = max(ownedWeights, key=ownedWeights.get)
+        self.buyHouse(max_key)
 
 
 class PlayGame(Decisions):
-
-  def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    self.d = Decisions()
-    self.doubleCounter = 0
 
   def startGame(self):
     robotRoll = rules.gameSetup()
@@ -957,27 +1032,45 @@ class PlayGame(Decisions):
       print("I will be going first!")
     else:
       print("You will be going first!")
-      self.d.isPlayer = True
+      self.isPlayer = True
 
   def robotTurn(self):
-    r = rules.rollDice()
-    print("I rolled (" + str(r[0]) + ", " + str(r[1]) + ")")
-    if r[0] == r[1]:
-      self.doubleCounter += 1
-    self.d.updatePosition(r[0] + r[1])
-    self.d.robotDecision()
-    self.d.endTurn()
-    print("\n\n")
+    if self.robotInJail == True:
+      self.robotDecision()
+    else:
+      r = rules.rollDice()
+      print("I rolled (" + str(r[0]) + ", " + str(r[1]) + ")")
+      if r[0] == r[1]:
+        self.doubleCounter += 1
+      self.updatePosition(r[0] + r[1])
+      self.robotDecision()
+      self.endTurn()
+      print(self.robotMoneySum)
+      print(self.robotMoney)
+      print("\n")
 
   def playerTurn(self):
-    self.d.playerDecisions()
-    self.d.endTurn()
-    print("\n\n")
-
+    if self.playerInJail == False:
+      self.playerDecisions()
+      self.endTurn()
+      print("\n")
+    else:
+      print("You are in Jail!")
+      choice = ""
+      if self.playerJailFree == False:
+        choice = input("Would you like to: \n(1) Roll\n(2) Pay\n")
+      else:
+        choice = input("Would you like to: \n(1) Roll\n(2) Pay\n(3) Use Get Out of Jail Card")
+      if int(choice) == 1:
+        self.rollOut()
+      elif int(choice) == 2:
+        self.payFine()
+      elif int(choice) == 3:
+        self.useCard()
   def playGame(self):
     self.startGame()
     while self.turnCounter > 0:
-      if self.d.isPlayer == True:
+      if self.isPlayer == True:
         self.playerTurn()
       else:
         self.robotTurn()
