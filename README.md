@@ -32,7 +32,6 @@ source devel/setup.bash
 . baxter.sh sim
 roslaunch baxter_gazebo baxter_world.launch
 ```
-
 Wait several moments for gazebo to load; you should see the Baxter robot next to a table with Monopoly
 
 Open another terminal and enter:
@@ -43,5 +42,25 @@ rosrun baxter_sim_examples ik_pick_and_place_demo.py
 ```
 You should see the Baxter robot begin to move its arms and execute the demo sequence
 
+To disable baxter_simulator, do the following commands in the terminal:
+```
+touch src/baxter_simulator/baxter_sim_io/CATKIN_IGNORE
+touch src/baxter_simulator/baxter_sim_kinematics/CATKIN_IGNORE
+touch src/baxter_simulator/baxter_emulator/CATKIN_IGNORE
+touch src/baxter_simulator/baxter_sim_hardware/CATKIN_IGNORE
+```
+To Calibrate baxter grippers before usage:
+```
+rosrun baxter_examples gripper_keyboard.py
+```
 
-
+To run the physical Baxter robot, do:
+```
+cd ~/workspace
+source devel/setup.bash
+. baxter.sh
+rosrun baxter_tools enable_robot.py -e/-d
+rosrun baxter_tools tuck_arms.py -u/-t
+rosrun baxter_tools AI.py
+```
+where e=enable, d=disable, u=untuck, t=tuck
