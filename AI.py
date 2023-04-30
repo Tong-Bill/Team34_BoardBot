@@ -78,7 +78,6 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
       "Green": 0.5,
       "DarkBlue": 0.7
     }
-
   def namingShortcut(self):
     x = self.currPos
     if self.isPlayer == True:
@@ -109,7 +108,8 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
         self.currPos += sum
         try:
           if not rospy.is_shutdown():
-            writePublisher(sum) # Publish diceroll to motion planner 
+            print("debugging pub probs in updatePosition\n")
+            #writePublisher(sum) # Publish diceroll to motion planner 
         except:
           print("Error! Could not publish 'updatePosition'")
         if self.currPos >= 40:
@@ -324,7 +324,13 @@ class Assets(board):
             amount -= (i * temp)
           if amount == 0:
             return
-
+  def webPublisher(self, server):
+    moneyTalker = roslibpy.Topic(server, '/Assets', 'std_smgs/String')
+    #propTalker = roslibpy.Topic(server, '/Assets', 'std_smgs/String')
+    if server.is_connected:
+      print("True")
+      moneyTalker.publish(roslibpy.Message({'data': str(self.robotMoneySum)}))
+      #propTalker.publish(roslibpy.Message({'data': str(self.robotOwnedProperties)}))
   def closest(self, value):
     cash = []
     if self.isPlayer == False:
@@ -1187,6 +1193,8 @@ class PlayGame(Decisions):
       self.isPlayer = True
 
   def robotTurn(self):
+    diceMovePub = rospy.Publisher('diceRoll', Int16, queue_size=10)
+    rospy.sleep(2.0)
     if self.robotInJail == True:
       if self.robotJailFree == True:
         print("I will use my card!")
@@ -1201,13 +1209,13 @@ class PlayGame(Decisions):
         self.payFine()
         self.endTurn()
     else:
-      msg = 'roll'
+      msg = 1
       # Standard turn: Roll dice, move piece, do action
       r = rules.rollDice() # Randomly generate dice for testing
-      diceMovePub = rospy.Publisher('diceRoll', String, queue_size=10)
       diceMovePub.publish(msg)
+      print("\nHi, I should be publishing right now ;) ")
       
-      rospy.spin() # wait here
+      #rospy.spin() # wait here
 
       #r = rules.rollDice() # Randomly generate dice for testing
       print("I rolled (" + str(r[0]) + ", " + str(r[1]) + ")")
@@ -1218,13 +1226,21 @@ class PlayGame(Decisions):
         if self.doubleCounter == 4:
           self.goToJail()
           self.doubleCounter = 0
-        else:    
+        else:
+          client = roslibpy.Ros(host='134.197.95.215', port=9090)
+          client.connect()
+          client.run()
+          self.webPublisher(client)
+          webPub.terminate()    
           self.robotTurn()
       else:
         self.doubleCounter = 0
+        client = roslibpy.Ros(host='134.197.95.215', port=9090)
+        client.connect()
+        client.run()
+        self.webPublisher(client)
+        client.terminate()
         self.endTurn()
-      print(self.robotMoneySum)
-      print(self.robotOwnedProperty)
       print("\n")
 
   def playerTurn(self):
@@ -1246,28 +1262,26 @@ class PlayGame(Decisions):
       elif int(choice) == 3:
         self.useCard()
         
-  #def playGame(self, server):
-  def playGame(self):
+  def playGame(self, server):
+  #def playGame(self):
     global begin 
     begin = False
     #subprocess.call(['./angry.sh'], shell=True)
     
-    #listener = roslibpy.Topic(server, '/begin', 'std_msgs/String') # Set up a topic 'begin' via the server
-    
-    #while not begin:
-    #    listener.subscribe(beginCallback)
+    self.listener = roslibpy.Topic(server, '/begin', 'std_msgs/String') # Set up a topic 'begin' via the server
 
-    #while True: # Wait until the player sends the signal to begin the game
-    #    listener.subscribe()
-    self.startGame()
-    while self.turnCounter > 0:
-      if self.isPlayer == True:
-        self.playerTurn()
-      else:
-        self.robotTurn()
-      sleep(1)
-      if self.turnCounter == 0:
-        self.endGame()
+    while not begin:
+      self.listener.subscribe(beginCallback)
+    if begin == True: # Wait until the player sends the signal to begin the game
+      self.startGame()
+      while self.turnCounter > 0:
+        if self.isPlayer == True:
+          self.playerTurn()
+        else:
+          self.robotTurn()
+        sleep(1)
+        if self.turnCounter == 0:
+          self.endGame()
 
 
 class debug(PlayGame):
@@ -1291,30 +1305,31 @@ class debug(PlayGame):
 #def subscribeFrontend()
 #   used to check for a "start-the-game" message from web frontend
 def beginCallback(data):
+    temp = data
     global begin
-    if(data == 'Hello World'):
+    if(temp['data'] == "6"):
         begin = True
         print("\n\nStart the game already!\n\n")
     else:
         print("\nNot yet")
     
 
-
 def playTurn():
-    #try:
-    #    while True:
-    #        rospy.init_node('AI') # Start a ROS node for pub-sub
-    #        server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
-    #        server.run()       # Launch server
-    #        d = debug()
-    #        d.playGame(server)       # This .py file must be associated with a ROS node
-    #except KeyboardInterrupt:
-    #    server.terminate()  # Make sure that the server shuts down if program terminates early
-    rospy.init_node('AI') # Start a ROS node for pub-sub
+    try:
+      while True:
+        rospy.init_node('AI') # Start a ROS node for pub-sub
+        server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
+        server.run()       # Launch server
+        d = debug()
+        d.playGame(server)       # This .py file must be associated with a ROS node
+        server.terminate()
+    except KeyboardInterrupt:
+      server.terminate()  # Make sure that the server shuts down if program terminates early
+    """rospy.init_node('AI') # Start a ROS node for pub-sub
     #server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
     #server.run()       # Launch server
     d = debug()
-    d.playGame()       # This .py file must be associated with a ROS node
+    d.playGame()  """     # This .py file must be associated with a ROS node
         
         
         
