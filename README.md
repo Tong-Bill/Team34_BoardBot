@@ -72,6 +72,7 @@ roslaunch rosbridge_server rosbridge_websocket.launch
 rosrun baxter_tools AI.py
 
 On Web Interface
+roslaunch rosbrdige_server rosbridge_websocket.launch
 Click Start
 ```
 Press Ctrl + \ to hard quit. DO not do Ctrl + 'c' to reducing clients active.
