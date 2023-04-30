@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boardbot</title>
+    <link rel="stylesheet" href="sessionStyle.css">
+    
+    <!--This link seems to be broken as of 4/28/2023
+    <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+    -->
+    <script type="text/javascript" src=" https://s3.eu-west-1.amazonaws.com/rosject.io/js/roslib.min.js"></script>
+</head>
+<body>
+    <!--Connect to ros_bridge-->
+    <script type="text/javascript" type="text/javascript">
+        var ros = new ROSLIB.Ros({
+            /*
+            url : 'ws://localhost:9090'
+            */
+            
+            url : 'ws://134.197.95.215:9090'
+            
+        });
+
+        ros.on('connection', function() {
+            console.log('Connected to websocket server.');
+        });
+
+        ros.on('error', function(error) {
+            console.log('Error connecting to websocket server: ', error);
+        });
+
+        ros.on('close', function() {
+            console.log('Connection to websocket server closed.');
+        });
+
+        var cmdVel = new ROSLIB.Topic({
+            ros : ros,
+            name : '/begin',
+            messageType : 'std_msgs/String'
+        });
+        
+        var twist = new ROSLIB.Message({
+            data: 'Hello World'
+        });
+
+        cmdVel.publish(twist);
+    </script>
+    <section class="container">
+        <div class="column1">
+            <h2>1st column</h2>
+        </div>
+        <div class="column2">
+            <h2>2nd column</h2>
+        </div>
+        <div class="column3">
+            <h2>3rd column</h2>
+        </div>
+    </section>
+
+</body>
+</html>
