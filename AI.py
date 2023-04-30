@@ -1,11 +1,21 @@
+#!/usr/bin/env python
 import rules
+import subprocess
 from time import sleep
 import random as rd
-from std_msgs.msg import Int16
+from std_msgs.msg import (Int16, String,)
 import rospy
+import roslibpy     # for web integration
 #Some commented out code is made using match/case, which is Python 3.10, which is too high of a version for Baxter. I kept it in here as it is code I have written. 
 
 #new Board which is a dict that is [type of square, color/name, name, weight]. Weight is used for selling properties and is found using data online on which properties are the most valuable.
+
+def writePublisher(diceRoll):
+  pub = rospy.Publisher('spaceInfo', Int16, queue_size = 10) # Message "object": Topic name, message type, number of messages to queue up
+  
+  rate = rospy.Rate(1)   # send at 1 Hz intervals
+  pub.publish(diceRoll)
+    
 class board(rules.BoardSpaces, rules.TitleDeedCards):
   Board = {
     0: [-2, "Go"],
@@ -54,7 +64,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
     self.isPlayer = player
     self.currPos = 0
     self.playerPos = 0
-    self.turnCounter = 50
+    self.turnCounter = 10
     #numPlayers = input("How many players are playing?: ")
     self.numPlayers = 1
     self.weights = {
@@ -97,6 +107,11 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
         return
       else:
         self.currPos += sum
+        try:
+          if not rospy.is_shutdown():
+            writePublisher(sum) # Publish diceroll to motion planner 
+        except:
+          print("Error! Could not publish 'updatePosition'")
         if self.currPos >= 40:
           self.currPos -= 40
           self.passGo()
@@ -280,9 +295,11 @@ class Assets(board):
     self.robotOwnedProperty, self.playerOwnedProperty = [], []
     self.robotNumProperties, self.playerNumProperties = 0, 0
     self.house, self.playerHouse, self.hotel, self.playerHotel = 0, 0, 0, 0
+    self.playerAssets, self.robotAssets = 1500, 1500
     self.ownedSets, self.playerOwnedSets = set(), set()
     self.listOfCC = rd.sample(range(1, 17), 16)
     self.listOfChance = rd.sample(range(1, 17), 16)
+    self.robotMortgaged, self.playerMortgaged = [], []
 
   def gainMoney(self, amount):
     if self.isPlayer == False:
@@ -351,6 +368,11 @@ class Assets(board):
           return
         elif amount == 0:
           return
+          
+  def numHouses(self, color, name):
+    if self.isPlayer == False:
+      return self.ownedProperties[color][name][1]
+    return self.playerOwnedProperties[color][name][1]
     
 
   def payAmount(self, value, amount):
@@ -386,9 +408,18 @@ class Assets(board):
         if self.ownedProperties[color][name][2] == True:
           return True
     return False
+    
+  def propMortgaged(self, color, name):
+    if self.isPlayer == True:
+      if self.playerOwnedProperties[color][name][2] == True:
+        return True
+    else:
+      if self.ownedProperties[color][name][2] == True:
+        return True
+    return False
 
 
-class Actions(Assets, rules.ChanceCommunityCards):
+class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
   def passGo(self):
     self.gainMoney(200)
@@ -509,14 +540,17 @@ class Actions(Assets, rules.ChanceCommunityCards):
             case "n":
               return"""
           if choice2 == "y":
-            self.gainMoney(self.cards[choice][2])
+            self.gainMoney(self.cards[choice][1])
             self.playerOwnedProperties[color][choice][2] = True
+            self.playerMortgaged.append(choice)
             return
           elif choice2 == "n":
             return
         elif choice in prop[color]:
-          self.gainMoney(self.cards[choice][2])
+          self.gainMoney(self.cards[choice][1])
           self.playerOwnedProperties[color][choice][2] = True
+          self.playerMortgaged.append(choice)
+          return
     else:
       notSet = []
       finSet = []
@@ -525,28 +559,96 @@ class Actions(Assets, rules.ChanceCommunityCards):
       for prop in self.robotOwnedProperty:
         for color in self.ownedProperties:
           if prop in self.ownedProperties[color] and self.isASet(color):
-            finSet.append(prop)
+            if self.propMortgaged(color, prop) == False:
+              finSet.append(prop)
           elif prop in self.ownedProperties[color] and self.isASet(color) == False:
-            notSet.append(prop)
-      
+            if self.propMortgaged(color, prop) == False:
+              notSet.append(prop)
+            
       if len(notSet) > 0 and self.house == 0:
         y = self.cards[notSet[0]][1]
-        for prop in notSet:
-          if self.cards[prop][1] > y:
-            p = prop
+        p = notSet[0]
+        for propNum in range(1, len(notSet)):
+          if self.cards[notSet[propNum]][1] > y:
+            p = notSet[propNum]
             y = self.cards[prop][1]
       elif len(notSet) == 0 and self.house == 0:
+        p = finSet[0]
         y = self.cards[finSet[0]][1]
         for prop in finSet:
           if self.cards[prop][1] > y:
             p = prop
             y = self.cards[prop][1]
       self.gainMoney(self.cards[p][1])
+      self.robotMortgaged.append(p)
       for color in self.ownedProperties:
         if p in self.ownedProperties[color]:
           self.ownedProperties[color][p][2] = True
           break
-  
+          
+  def listMortgaged(self):
+    mortgaged = []
+    if self.isPlayer == False:
+      for color in self.ownedProperties:
+        for name in self.ownedProperties[color]:
+          if self.ownedProperties[color][name][2] == True:
+            mortgaged.append(name)
+    else:
+      for color in self.playerOwnedProperties:
+        for name in self.playerOwnedProperties[color]:
+          if self.playerOwnedProperties[color][name][2] == True:
+            mortgaged.append(name)
+    return mortgaged
+    
+  def returnColor(self, name):
+    for space in self.Board:
+      if self.Board[space][0] == -2:
+        continue
+      else:
+        if self.Board[space][2] == name:
+          return self.Board[space][1]
+
+  def unmortgage(self):
+    if not self.isPlayer:
+      mort = self.listMortgaged()
+      setMort = []
+      for prop in mort:
+        if self.returnColor(prop) in self.ownedSets:
+          setMort.append(prop)
+          mort.pop(prop.index())
+          
+      m = ""
+      y = 0
+      k = ""
+      wgt = {k: v for k, v in sorted(self.weights.items(), key=lambda item: item[1], reverse = True)}
+      if len(setMort) > 0:
+        for prop in setMort:
+          if self.robotMoneySum > self.unmortgageProperty(prop):
+            y = max(y, wgt[self.returnColor(prop)])
+            if wgt[self.returnColor(prop)] == y:
+              m = prop
+      else:
+        for prop in mort:
+          if self.robotMoneySum > self.unmortgageProperty(prop):
+            y = max(y, wgt[self.returnColor(prop)])
+            if wgt[self.returnColor(prop)] == y:
+              m = prop
+      self.giveMoney(self.unmortgageProperty(m))
+      self.ownedProperties[self.returnColor(m)][m][2] = False
+      return
+    else:
+      mort = self.listMortgaged()
+      print(mort)
+      prop = input("Which property would you like to unmortgage?: ")
+      if prop in mort and self.playerMoneySum - self.unmortgageProperty(prop) > 0:
+        self.giveMoney(self.unmortgageProperty(prop))
+        self.playerOwnedProperties[self.returnColor(prop)][prop][2] = True
+      else:
+        return
+        
+
+        
+      
   def readCardCC(self, cardNum):
     print("I pulled No." + str(cardNum))
     self.namingShortcut()
@@ -754,46 +856,47 @@ class Actions(Assets, rules.ChanceCommunityCards):
   def payRent(self):
     self.namingShortcut()
     if self.isPlayer == False:
-      if self.playerOwnedProperties[self.color][self.name][2] == True:
-        print("This property is mortgaged.")
-      elif self.square == -1 and self.color in self.playerOwnedSets:
+      if self.propMortgaged(self.color, self.name):
+        print("No rent! This property has been mortgaged!")
+      elif self.square == -1 and self.isASet(self.color):
         if self.color == "Utilities":
-           self.giveMoney(self.move * 10)
-           self.receiveRent(self.move * 10)
+          self.giveMoney(self.move * 10)
+          self.receiveMoney(self.move * 10)
         else:
-          house = self.playerOwnedProperties[self.color][self.name][1]
+          house = self.numHouses(self.color, self.name)
           if house > 4:
-            self.giveMoney(self.rentLookup(self.name, True, False, True))
-            self.receiveRent(self.rentLookup(self.name, True, False, True))
+            self.giveMoney(self.rentLookup(self.name, True, 0, 1))
+            self.receiveRent(self.rentLookup(self.name, True, 0, 1))
           else:
             self.giveMoney(self.rentLookup(self.name, True, house))
             self.receiveRent(self.rentLookup(self.name, True, house))
-      elif self.square == -1 and self.color not in self.playerOwnedSets:
+      elif self.square == -1:
         if self.color == "Utilities":
           self.giveMoney(self.move * 4)
           self.receiveRent(self.move * 4)
         else:
           self.giveMoney(self.rentLookup(self.name))
-          print(self.robotMoneySum)
-          self.receiveRent(self.rentLookup(self.name))
-          print(self.playerMoneySum)
+          self.receiveRent(self.rentLookup(self.name)) 
 
       #social here, anger.
 
     else:
-      if self.ownedProperties[self.color][self.name][2] == True:
-        print("This property is mortgaged.")
+      if self.propMortgaged(self.color, self.name):
+        print("No rent! This property has been mortgaged!")
       elif self.square == 1 and self.color in self.ownedSets:
-        house = self.ownedProperties[self.color][self.name][1]
-        if house > 4:
-          self.giveMoney(self.rentLookup(self.name, True, False, True))
-          self.receiveRent(self.rentLookup(self.name, True, False, True))
+        if self.color == "Utilities":
+          self.giveMoney(self.move * 10)
         else:
-          self.giveMoney(self.rentLookup(self.name, True, house))
-          self.receiveRent(self.rentLookup(self.name, True, house))
+          house = self.ownedProperties[self.color][self.name][1]
+          if house > 4:
+            self.giveMoney(self.rentLookup(self.name, True, False, True))
+          else:
+            self.giveMoney(self.rentLookup(self.name, True, house))
       elif self.square == 1 and self.color not in self.ownedSets:
-        self.giveMoney(self.rentLookup(self.name))
-        self.receiveRent(self.rentLookup(self.name))
+        if self.color == "Utilities":
+          self.giveMoney(self.move * 4)
+        else:
+          self.giveMoney(self.rentLookup(self.name))
 
 
   def endTurn(self):
@@ -806,15 +909,57 @@ class Actions(Assets, rules.ChanceCommunityCards):
 
   def checkBankruptcy(self):
     if self.isPlayer == True:
-      if self.playerMoneySum == 0 and self.playerNumProperties == 0:
+      if self.playerMoneySum == 0:
+        for prop in self.playerOwnedProperty:
+          if prop not in self.playerMortgaged:
+            break
+        else:
+          return False
         return True
         #Trump voice, demand recount.
     else:
-      if self.robotMoneySum == 0 and self.robotNumProperties == 0:
+      if self.robotMoneySum == 0:
+        for prop in self.robotOwnedProperty:
+          if prop not in self.robotMortgaged:
+            break
+        else:
+          return False
         return True
     return False
-
-
+    
+  def countAssets(self):
+    robotTotal, playerTotal = self.robotMoneySum, self.playerMoneySum
+    for color in self.ownedProperties:
+      for prop in self.ownedProperties[color]:
+        if color in self.ownedSets:
+          robotTotal += self.ownedProperties[color][prop][1] * self.getBuildCost(prop)
+        if self.ownedProperties[color][prop][0] == True:
+          robotTotal += self.board[self.cards[prop][0]][3]
+    for color in self.playerOwnedProperties:
+      for prop in self.playerOwnedProperties[color]:
+        if color in self.playerOwnedSets:
+          playerTotal += self.playerOwnedProperties[color][prop][1] * self.getBuildCost(prop)
+        if self.playerOwnedProperties[color][prop][0] == True:
+          playerTotal += self.board[self.cards[prop][0]][3]
+    if robotTotal > playerTotal:
+      print("You lose! The robot has {} dollars of total assets while you have {} dollars of total assets".format(robotTotal, playerTotal))
+    elif playerTotal > robotTotal:
+      print("You win! You have {} dollars of total assets while BoardBot has {} dollars of total assets.".format(playerTotal, robotTotal))
+    else:
+      print("Tie!")
+         
+          
+  def endGame(self):
+    if self.checkBankruptcy == True:
+      if self.isPlayer == True:
+        print("Game Over! You have gone bankrupt!")
+      else:
+        print("You win! I have gon bankrupt!")
+    else:
+      self.countAssets()
+    quit()
+      
+          
 class Jail(Actions):
 
   def __init__(self, *args, **kwargs):
@@ -880,6 +1025,7 @@ class Decisions(Jail):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.doubleCounter = 0
+ 
 
   def playerDecisions(self):
     c = self.playerStartTurn()
@@ -890,12 +1036,12 @@ class Decisions(Jail):
           self.doubleCounter = 0
         choice = int(
           input(
-            "(1) Buy\n(2) Sell Houses\n(3)Mortgage Properties\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) End Turn: "
+            "(1) Buy\n(2) Sell Houses\n(3)Mortgage Properties\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) End Turn\n(0) End Game: "
           ))
       else:
         choice = int(
           input(
-            "(1) Buy\n(2) Sell\n(3)Mortgage\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) Skip Turn\n(7) Roll Dice: "
+            "(1) Buy\n(2) Sell\n(3)Mortgage\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) Skip Turn\n(7) Roll Dice\n(0) End Game: "
           ))
       if choice == 1:
         choice2 = int(input("(1) Buy Property\n(2) Buy Upgrade: "))
@@ -910,7 +1056,11 @@ class Decisions(Jail):
           else:
             print("You don't have any completed sets!")
       elif choice == 3:
-        self.mortgage()
+        choice2 = input("(1) Mortgage\n(2) Unmortgage")
+        if int(choice2) == 1:
+          self.mortgage()
+        else:
+          self.unmortgage()
       elif choice == 4:
         print(self.playerMoneySum)
         print("A more detailed breakdown: " + str(self.playerMoney))
@@ -929,6 +1079,8 @@ class Decisions(Jail):
         print("You rolled (" + str(r[0]) + "," + str(r[1]) + ").")
         self.updatePosition(r[0] + r[1])
         c = 1
+      elif choice == 0:
+        self.endGame()
     if c == 2:
       self.doubleCounter += 1
       if self.doubleCounter == 4:
@@ -996,20 +1148,32 @@ class Decisions(Jail):
     ownedWeights = {}
     self.namingShortcut()
     print(self.Board[self.space])
-    print(self.square)
-    if self.square == 0:
-      self.buy()
-    if self.robotMoneySum <= 300:
-      self.mortgage()
-    if len(self.ownedSets) > 0:
-      for color in self.ownedSets:
-        ownedWeights[color] = self.weights[color]
-      max_key = max(ownedWeights, key=ownedWeights.get)
-      self.buyHouse(max_key)
+    if not self.checkBankruptcy():
+      if self.square == 0:
+        self.buy()
+      if self.robotMoneySum <= 200:
+        self.mortgage()
+      if len(self.robotMortgaged) > 0:
+        self.unmortgage()
+      if len(self.ownedSets) > 0:
+        for color in self.ownedSets:
+          ownedWeights[color] = self.weights[color]
+        max_key = max(ownedWeights, key=ownedWeights.get)
+        self.buyHouse(max_key)
+    else:
+      if self.checkBankruptcy():
+        print("You win! I have gone bankrupt.")
+        quit()
+      else:
+        self.mortgage()
+    
 
 
 class PlayGame(Decisions):
-
+  
+  def __init__(self, *args, **kwargs):
+    super().__init__(*args, **kwargs)
+    
   def startGame(self):
     robotRoll = rules.gameSetup()
     robotSum = robotRoll[0] + robotRoll[1]
@@ -1037,7 +1201,15 @@ class PlayGame(Decisions):
         self.payFine()
         self.endTurn()
     else:
-      r = rules.rollDice()
+      msg = 'roll'
+      # Standard turn: Roll dice, move piece, do action
+      r = rules.rollDice() # Randomly generate dice for testing
+      diceMovePub = rospy.Publisher('diceRoll', String, queue_size=10)
+      diceMovePub.publish(msg)
+      
+      rospy.spin() # wait here
+
+      #r = rules.rollDice() # Randomly generate dice for testing
       print("I rolled (" + str(r[0]) + ", " + str(r[1]) + ")")
       self.updatePosition(r[0] + r[1])
       self.robotDecision()
@@ -1052,7 +1224,6 @@ class PlayGame(Decisions):
         self.doubleCounter = 0
         self.endTurn()
       print(self.robotMoneySum)
-      print(self.robotMoney)
       print(self.robotOwnedProperty)
       print("\n")
 
@@ -1075,7 +1246,19 @@ class PlayGame(Decisions):
       elif int(choice) == 3:
         self.useCard()
         
+  #def playGame(self, server):
   def playGame(self):
+    global begin 
+    begin = False
+    #subprocess.call(['./angry.sh'], shell=True)
+    
+    #listener = roslibpy.Topic(server, '/begin', 'std_msgs/String') # Set up a topic 'begin' via the server
+    
+    #while not begin:
+    #    listener.subscribe(beginCallback)
+
+    #while True: # Wait until the player sends the signal to begin the game
+    #    listener.subscribe()
     self.startGame()
     while self.turnCounter > 0:
       if self.isPlayer == True:
@@ -1083,6 +1266,8 @@ class PlayGame(Decisions):
       else:
         self.robotTurn()
       sleep(1)
+      if self.turnCounter == 0:
+        self.endGame()
 
 
 class debug(PlayGame):
@@ -1102,23 +1287,37 @@ class debug(PlayGame):
       print("(1) Add Money\n(2) Add Property\n(3) Add House/Hotel")
       i = input()
       print(i)
-      
-def writePublisher():
-    pub = rospy.Publisher('spaceInfo', Int16, queue_size = 10) # Message "object": Topic name, message type, number of messages to queue up
-    rate = rospy.Rate(1)   # send at 1 Hz intervals
-    variable = 5 # fake dice roll of value 5
-    while not rospy.is_shutdown():
-        testMessage = str(variable)
-        pub.publish(testMessage)
+
+#def subscribeFrontend()
+#   used to check for a "start-the-game" message from web frontend
+def beginCallback(data):
+    global begin
+    if(data == 'Hello World'):
+        begin = True
+        print("\n\nStart the game already!\n\n")
+    else:
+        print("\nNot yet")
+    
 
 
 def playTurn():
-  d = debug()
-  d.playGame()
-  rospy.init_node('AI')       # This .py file must be associated with a ROS node
-  while not rospy.is_shutdown():
-    writePublisher()
-
+    #try:
+    #    while True:
+    #        rospy.init_node('AI') # Start a ROS node for pub-sub
+    #        server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
+    #        server.run()       # Launch server
+    #        d = debug()
+    #        d.playGame(server)       # This .py file must be associated with a ROS node
+    #except KeyboardInterrupt:
+    #    server.terminate()  # Make sure that the server shuts down if program terminates early
+    rospy.init_node('AI') # Start a ROS node for pub-sub
+    #server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
+    #server.run()       # Launch server
+    d = debug()
+    d.playGame()       # This .py file must be associated with a ROS node
+        
+        
+        
 
 if __name__ == "__main__":
   playTurn()
