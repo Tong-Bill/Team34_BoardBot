@@ -1,5 +1,0 @@
-To DISABLE baxter_simulator, use the following commands. 
-touch src/baxter_simulator/baxter_sim_io/CATKIN_IGNORE
-touch src/baxter_simulator/baxter_sim_kinematics/CATKIN_IGNORE
-touch src/baxter_simulator/baxter_emulator/CATKIN_IGNORE
-touch src/baxter_simulator/baxter_sim_hardware/CATKIN_IGNORE
