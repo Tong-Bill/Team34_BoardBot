@@ -74,6 +74,6 @@ rosrun baxter_tools AI.py
 On Web Interface
 Click Start
 ```
-Press Ctrl + '\' to hard quit. DO not do Ctrl + 'c' to reducing clients active.
+Press Ctrl + \ to hard quit. DO not do Ctrl + 'c' to reducing clients active.
 
 
