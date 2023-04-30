@@ -64,3 +64,16 @@ rosrun baxter_tools tuck_arms.py -u/-t
 rosrun baxter_tools AI.py
 ```
 where e=enable, d=disable, u=untuck, t=tuck
+
+Publisher/subscriber INFO:
+```
+On LAB computer
+roslaunch rosbridge_server rosbridge_websocket.launch
+rosrun baxter_tools AI.py
+
+On Web Interface
+Click Start
+```
+Press Ctrl + '\' to hard quit. DO not do Ctrl + 'c' to reducing clients active.
+
+
