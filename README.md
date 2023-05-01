@@ -76,5 +76,8 @@ roslaunch rosbrdige_server rosbridge_websocket.launch
 Click Start
 ```
 Press Ctrl + \ to hard quit. DO not do Ctrl + 'c' to reducing clients active.
-
+If you encounter the error "Unable to start server: Couldn't listen on any:9090: [Errno 98] Address already in use",
+do the following before running roslaunch command:
+lsof -i :9090
+sudo kill -9 PID
 
