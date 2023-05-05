@@ -1,59 +1,359 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
 
 *{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-  }
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
 
-  body {
-    /* Used for solid background color*/
-    background: #081b29;
-    color: white;
-  }
+body {
+  /* Used for solid background color*/
+  background: #081b29;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
 
-  .container {
-    align-items: center;
-    position: absolute;
-    margin: auto;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 800px;
-    width: 1300px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
-    border: 1px solid rgba(red, green, blue, alpha);
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0px 0px 20px 0px rgba(red, green, blue, alpha);
-    display: flex;
-  }
+.container {
+  align-items: center;
+  position: absolute;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 800px;
+  width: 1000px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+  border: 1px solid rgba(red, green, blue, alpha);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0px 0px 20px 0px rgba(red, green, blue, alpha);
+  display: flex;
+}
+.container .announcer-text {
+  width: 800px;
+  height: 300px;
+  position: absolute;
+  bottom: 400px;
+  left: 100px;
+  text-align: center;
+}
+.container .announcer-text h2 {
+  position: relative;
+  font-weight: bold;
+  font-size: 50px;
+  color: white;
+}
 
-  .container .column1 {
-    text-align: center;
-    margin: 2px;
-    height: 98%;
-    flex: 1;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
-    border: 1px solid rgba(red, green, blue, alpha);
-    
-  }
+.container .submit-roll {
+  width: 270px;
+  height: 60px;
+  position: absolute;
+  bottom: 210px;
+  left: 365px;
+}
 
-  .container .column2 {
-    margin: 2px;
-    text-align: center;
-    height: 98%;
-    flex: 2;
-    background-color: red;
-  }
+input[type="number"] {
+  width: 100px;
+}
 
-  .container .column3 {
-    margin: 2px;
-    text-align: center;
-    height: 98%;
-    flex: 1;
-    background-color: red;
-  }
+.container .submit-roll h3 {
+  color: white;
+  font-weight: bold;
+}
+
+.leftboard {
+  position: absolute;
+  left: 50px;
+  top: 0%;
+  height: 100%;
+  width: 350px; /*20px default */
+  z-index: 9999;
+  background: transparent;
+  text-align: center;
+}
+
+.leftboard h3 {
+  color: white;
+}
+
+.leftboard .robotMoneyLabel {
+  color: greenyellow;
+}
+
+.leftboard .robotAssetsLabel {
+  color: orange;
+}
+
+.rightboard {
+  position: absolute;
+  right: 50px;
+  top: 0%;
+  height: 100%;
+  width: 350px; /*20px default */
+  z-index: 9999;
+  background: transparent;
+  text-align: center;
+}
+.rightboard h3 {
+  color: white;
+}
+
+.rightboard .playerMoneyLabel {
+  color: greenyellow;
+}
+
+.rightboard .playerAssetsLabel {
+  color: orange;
+}
+
+.actions {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 40px;
+  flex-wrap: wrap;
+  gap: 80px;
+  top: 25px;
+}
+
+.card {
+  height: 120px;
+  width: 350px;
+  position: relative;
+  background: #292929;
+  transition: 0.5s;
+}
+
+.card:hover {
+  height: 270px;
+}
+
+.card .card-border {
+  position: absolute;
+  background: black;
+  overflow: hidden;
+  inset: 0;
+}
+
+.card .card-border::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: #292929;
+}
+
+.card .icon {
+  height: 100px;
+  width: 100px;
+  left: 50%;
+  top: -60px;
+  background: #292929;
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  transition: 0.5s;
+  z-index: 5;
+  border-width: 3px;
+  border-style: solid;
+}
+
+.card:hover .icon {
+  height: 120px;
+  width: 120px;
+  top: 25px;
+}
+
+.card .description {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.card .description .info {
+  text-align: center;
+  width: 100%;
+  padding: 5px 20px;
+  transform: translateY(50px);
+  transition: 0.5s;
+}
+
+.card:hover .description .info {
+  transform: translateY(0px)
+}
+
+.card .description .info h2 {
+  line-height: 19px;
+  font-size: 24px;
+  font-weight: bold;
+  color: aqua;
+}
+
+.card .description .info p {
+  color: white;
+  opacity: 0;
+  transition: 0.5s;
+}
+
+.card:hover .description .info p {
+  opacity: 1;
+}
+
+/* Game Button Configurations */
+.button-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  width: 800px;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  top: 300px;
+}
+
+.button-container .bottom-btn {
+  position: relative;
+  height: 50px;
+  width: 160px;
+  margin: 20px;
+}
+
+.button-container .bottom-btn button {
+  position: absolute;
+  cursor: pointer;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  letter-spacing: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30px;
+  overflow: hidden;
+  backdrop-filter: blur(15px);
+  z-index: 1;
+  transition: 0.5s;
+}
+
+.button-container .bottom-btn:hover button {
+  letter-spacing: 3px;
+}
+
+.button-container .bottom-btn button::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(to left, rgba(255,255,255,0.15), transparent);
+  transform: skew(45deg) translateX(0);
+  transition: 0.5s;
+}
+
+.button-container .bottom-btn:hover button::before {
+  transform: skew(45deg) translateX(150%);
+}
+
+.button-container .bottom-btn::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  height: 10px;
+  width: 30px;
+  transform: translateX(-50%);
+  background: red;
+  border-radius: 12px;
+  transition: 0.5s;
+  transition-delay: 0s;
+}
+
+.button-container .bottom-btn:hover::before {
+  height: 50%;
+  width: 75%;
+  bottom: 0;
+  transition-delay: 0.5s;
+  border-radius: 30px;
+}
+
+.button-container .bottom-btn::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -5px;
+  height: 10px;
+  width: 30px;
+  transform: translateX(-50%);
+  background: black;
+  border-radius: 12px;
+  transition: 0.5s;
+  transition-delay: 0s;
+}
+
+.button-container .bottom-btn:hover::after {
+  height: 50%;
+  width: 85%;
+  top: 0;
+  transition-delay: 0.5s;
+  border-radius: 30px;
+}
+
+/*Game button color customization */
+.button-container .bottom-btn:first-child::before,
+.button-container .bottom-btn:first-child::after {
+  background: aqua;
+  box-shadow: 0 0 5px aqua, 0 0 15px aqua, 0 0 30px aqua, 0 0 60px aqua;
+}
+
+.button-container .bottom-btn:nth-child(2)::before,
+.button-container .bottom-btn:nth-child(2)::after {
+  background: greenyellow;
+  box-shadow: 0 0 5px greenyellow, 0 0 15px greenyellow, 0 0 30px greenyellow, 0 0 60px greenyellow;
+}
+
+.button-container .bottom-btn:nth-child(3)::before,
+.button-container .bottom-btn:nth-child(3)::after {
+  background: yellow;
+  box-shadow: 0 0 5px red, 0 0 15px red, 0 0 30px red, 0 0 60px red;
+}
+
+.button-container .bottom-btn:nth-child(4)::before,
+.button-container .bottom-btn:nth-child(4)::after {
+  background: violet;
+  box-shadow: 0 0 5px purple, 0 0 15px purple, 0 0 30px purple, 0 0 60px purple;
+}
+
+.button-container .bottom-btn:nth-child(5)::before,
+.button-container .bottom-btn:nth-child(5)::after {
+  background: gray;
+  box-shadow: 0 0 5px gray, 0 0 15px gray, 0 0 30px gray, 0 0 60px gray;
+}
+
+.button-container .bottom-btn:nth-child(6)::before,
+.button-container .bottom-btn:nth-child(6)::after {
+  background: red;
+  box-shadow: 0 0 5px red, 0 0 15px red, 0 0 30px red, 0 0 60px red;
+}
+
