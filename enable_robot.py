@@ -27,71 +27,58 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-""" 
-Team 34: BoardBot
-This file is a modified version of xdisplay_image file. send_images has been Modified by Bill Tong  
-"""
-
+import argparse
 import os
 import sys
-import argparse
 
 import rospy
 
-import cv2
-import cv_bridge
+import baxter_interface
 
-from sensor_msgs.msg import (
-    Image,
-)
-
-
-def send_image(path):
-    img = cv2.imread(path)
-    msg = cv_bridge.CvBridge().cv2_to_imgmsg(img, encoding="bgr8")
-    pub = rospy.Publisher('/robot/xdisplay', Image, latch=True, queue_size=1)
-    pub.publish(msg)
-    # Sleep to allow for image to be published.
-    rospy.sleep(1)
+from baxter_interface import CHECK_VERSION
 
 
 def main():
-    epilog = """
-Notes:
-    Max screen resolution is 1024x600.
-    Images are always aligned to the top-left corner.
-    Image formats are those supported by OpenCv - LoadImage().
-    """
-    arg_fmt = argparse.RawDescriptionHelpFormatter
-    parser = argparse.ArgumentParser(formatter_class=arg_fmt,
-                                     description=main.__doc__,
-                                     epilog=epilog)
-    required = parser.add_argument_group('required arguments')
-    required.add_argument(
-        '-f', '--file', metavar='PATH', required=True,
-        help='Path to image file to send'
-    )
-    parser.add_argument(
-        '-d', '--delay', metavar='SEC', type=float, default=0.0,
-        help='Time in seconds to wait before publishing image'
-    )
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-s', '--state', const='state',
+                        dest='actions', action='append_const',
+                        help='Print current robot state')
+    parser.add_argument('-e', '--enable', const='enable',
+                        dest='actions', action='append_const',
+                        help='Enable the robot')
+    parser.add_argument('-d', '--disable', const='disable',
+                        dest='actions', action='append_const',
+                        help='Disable the robot')
+    parser.add_argument('-r', '--reset', const='reset',
+                        dest='actions', action='append_const',
+                        help='Reset the robot')
+    parser.add_argument('-S', '--stop', const='stop',
+                        dest='actions', action='append_const',
+                        help='Stop the robot')
     args = parser.parse_args(rospy.myargv()[1:])
 
-    rospy.init_node('rsdk_xdisplay_image', anonymous=True)
+    if args.actions == None:
+        parser.print_usage()
+        parser.exit(0, "No action defined")
 
-    if not os.access(args.file, os.R_OK):
-        rospy.logerr("Cannot read file at '%s'" % (args.file,))
-        return 1
+    rospy.init_node('rsdk_robot_enable')
+    rs = baxter_interface.RobotEnable(CHECK_VERSION)
 
-    # Wait for specified time
-    if args.delay > 0:
-        rospy.loginfo(
-            "Waiting for %s second(s) before publishing image to face" %
-            (args.delay,)
-        )
-        rospy.sleep(args.delay)
+    try:
+        for act in args.actions:
+            if act == 'state':
+                print(rs.state())
+            elif act == 'enable':
+                rs.enable()
+            elif act == 'disable':
+                rs.disable()
+            elif act == 'reset':
+                rs.reset()
+            elif act == 'stop':
+                rs.stop()
+    except Exception as e:
+        rospy.logerr(e.strerror)
 
-    send_image(args.file)
     return 0
 
 if __name__ == '__main__':

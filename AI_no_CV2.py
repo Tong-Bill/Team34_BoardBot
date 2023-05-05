@@ -79,7 +79,8 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
       "Red": 1,
       "Yellow": 0.6,
       "Green": 0.5,
-      "DarkBlue": 0.7
+      "DarkBlue": 0.7,
+      "Utilities": 0.1
     }
   def namingShortcut(self):
     x = self.currPos
@@ -478,7 +479,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           if self.isASet(self.color):
             self.ownedSets.add(self.color)
 
-      else::
+      else:
         self.leftoverMoney = self.playerMoneySum - self.price
         if self.leftoverMoney >= 350:
           self.updateOwnership("oppBuy")
@@ -756,7 +757,6 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       
   def readCardCC(self, cardNum):
     # TODO: Possible feedback here
-    print("I pulled No." + str(cardNum))
     self.namingShortcut()
     #social here, talking about the card pulled.
     if cardNum == 1:
@@ -817,7 +817,6 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
   def readCardChance(self, cardNum):
     # TODO: Possible feedback here
-    print("I pulled No." + str(cardNum))
     if cardNum == 1:
       if self.isPlayer == False:
         self.giveMoney(self.house * 25 + self.hotel * 100)
@@ -946,18 +945,15 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
     
   def pullCard(self, cardType):
     # TODO: Voice or Web UI feedback for this
+    choice = input("Which card did you pull?")
     if cardType == "Community Chest":
-        rules.pullCard()
-        card = rospy.wait_for_message('mpCards', Int16).data
-        self.readCardCC(card)
-        self.listOfCC.append(card)
+        self.readCardCC(choice)
+        self.listOfCC.append(choice)
     elif cardType == "Chance":
-        rules.pullCard()
-        card = rospy.wait_for_message('mpCards', Int16).data
       #  self.card = self.listOfChance.pop(0)
-        self.readCardChance(card)
-    if card != 16:
-        self.listOfChance.append(card)
+        self.readCardChance(choice)
+    if choice != 16:
+        self.listOfChance.append(choice)
     else:
         return
   def receiveRent(self, value):
@@ -1012,7 +1008,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         if self.color == "Utilities":
           # Have the robot announce the rent
           rent = self.move * 10
-          audio = "I owe you" + self.rent + "dollars."
+          audio = "I owe you" + str(rent) + "dollars."
           language = "en" 
           audioTalk = gTTS(text=audio, lang=language, slow=False)
           audioTalk.save("audio.mp3")
@@ -1023,7 +1019,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           house = self.numHouses(self.color, self.name)
           if house > 4:
             rent = self.rentLookup(self.name, True, 0, 1)
-            audio = "I owe you" + self.rent + "dollars."
+            audio = "I owe you" + str(rent) + "dollars."
             language = "en" 
             audioTalk = gTTS(text=audio, lang=language, slow=False)
             audioTalk.save("audio.mp3")
@@ -1032,7 +1028,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
             self.receiveRent(rent)
           elif house > 0:
             rent = self.rentLookup(self.name, True, house)
-            audio = "I owe you" + self.rent + "dollars."
+            audio = "I owe you" + str(rent) + "dollars."
             language = "en"
             audioTalk = gTTS(text=audio, lang=language, slow=False)
             audioTalk.save("audio.mp3")
@@ -1042,7 +1038,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
           else:
             rent = self.rentLookup(self.name, True)
-            audio = "I owe you" + self.rent + "dollars."
+            audio = "I owe you" + str(rent) + "dollars."
             language = "en" 
             audioTalk = gTTS(text=audio, lang=language, slow=False)
             audioTalk.save("audio.mp3")
@@ -1053,7 +1049,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       elif self.square == -1:
         if self.color == "Utilities":
           rent = self.move * 4
-          audio = "I owe you" + self.rent + "dollars."
+          audio = "I owe you" + str(rent) + "dollars."
           language = "en"
           audioTalk = gTTS(text=audio, lang=language, slow=False)
           audioTalk.save("audio.mp3")
@@ -1062,7 +1058,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           self.receiveRent(rent)
         else:
           rent = self.rentLookup(self.name)
-          audio = "I owe you" + self.rent + "dollars."
+          audio = "I owe you" + str(rent) + "dollars."
           language = "en" 
           audioTalk = gTTS(text=audio, lang=language, slow=False)
           audioTalk.save("audio.mp3")
@@ -1078,7 +1074,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       elif self.square == 1 and self.color in self.ownedSets:
         if self.color == "Utilities":
           rent = self.move * 10
-          audio = "You owe me" + self.rent + "dollars."
+          audio = "You owe me" + str(rent) + "dollars."
           language = "en"
           audioTalk = gTTS(text=audio, lang=language, slow=False)
           audioTalk.save("audio.mp3")
@@ -1089,7 +1085,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           house = self.ownedProperties[self.color][self.name][1]
           if house > 4:
             rent = self.rentLookup(self.name, True, False, True)
-            audio = "You owe me" + self.rent + "dollars."
+            audio = "You owe me" + str(rent) + "dollars."
             language = "en"
             audioTalk = gTTS(text=audio, lang=language, slow=False)
             audioTalk.save("audio.mp3")
@@ -1099,7 +1095,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
           elif house > 0:
             rent = self.rentLookup(self.name, True, house)
-            audio = "You owe me" + self.rent + "dollars."
+            audio = "You owe me" + str(rent) + "dollars."
             language = "en"
             audioTalk = gTTS(text=audio, lang=language, slow=False)
             audioTalk.save("audio.mp3")
@@ -1109,7 +1105,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
           else:
             rent = self.rentLookup(self.name, True)
-            audio = "You owe me" + self.rent + "dollars."
+            audio = "You owe me" + str(rent) + "dollars."
             language = "en"
             audioTalk = gTTS(text=audio, lang=language, slow=False)
             audioTalk.save("audio.mp3")
@@ -1120,7 +1116,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       elif self.square == 1 and self.color not in self.ownedSets:
         if self.color == "Utilities":
           rent = self.move * 4
-          audio = "You owe me" + self.rent + "dollars."
+          audio = "You owe me" + str(rent) + "dollars."
           language = "en"
           audioTalk = gTTS(text=audio, lang=language, slow=False)
           audioTalk.save("audio.mp3")
@@ -1130,7 +1126,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
         else:
           rent = self.rentLookup(self.name)
-          audio = "You owe me" + self.rent + "dollars."
+          audio = "You owe me" + str(rent) + "dollars."
           language = "en"
           audioTalk = gTTS(text=audio, lang=language, slow=False)
           audioTalk.save("audio.mp3")
@@ -1417,7 +1413,7 @@ class Decisions(Jail):
     global webAnnouncePublisher
     message = roslibpy.Message({'data': "It is your turn! Roll the dice."})
     webAnnouncePublisher.publish(message)
-
+    self.namingShortcut()
     #playerIn = input("[y/n]: ")
     #if playerIn == "y":
     dice = rospy.wait_for_message("diceinput", Int16).data # Get the dice total as: dice1dice2
@@ -1433,6 +1429,14 @@ class Decisions(Jail):
         #r.append(int(c))
     diceTotal = dice1 + dice2
     self.updatePosition(diceTotal)
+    if self.square != -2:
+      audio = "You are on" + self.Board[self.playerPos][2]
+    else:
+      audio = "You are on" + self.Board[self.playerPos][1]
+    language = "en"
+    audioTalk = gTTS(text=audio, lang=language, slow=False)
+    audioTalk.save("audio.mp3")
+    os.system("mpg321 audio.mp3")
     #webInfoPublisher.publish(roslibpy.Message({'data': diceTotal}))  TODO: Change the topic for this
     if dice1 == dice2:
         return 2 # doubles!
@@ -1518,7 +1522,7 @@ class PlayGame(Decisions):
     global webAnnouncePublisher
     message = roslibpy.Message({'data': "It is BoardBot's turn."})
     webAnnouncePublisher.publish(message)
-
+    self.namingShortcut()
     if self.robotInJail == True:
       if self.robotJailFree == True:
         print("I will use my card!")
@@ -1555,6 +1559,14 @@ class PlayGame(Decisions):
       # TODO
       # Needs to be reintegrated somewhere else
       self.updatePosition(rollVal[0] + rollVal[1])
+      if self.square != -2:
+        audio = "I am on" + self.Board[self.currPos][2]
+      else:
+        audio = "I am on" + self.Board[self.currPos][1]
+      language = "en"
+      audioTalk = gTTS(text=audio, lang=language, slow=False)
+      audioTalk.save("audio.mp3")
+      os.system("mpg321 audio.mp3")
       self.robotDecision()
       rospy.sleep(2)
       if rollVal[0] == rollVal[1]:

@@ -7,8 +7,6 @@ import random as rd
 from std_msgs.msg import (Int16, String, Int16MultiArray)
 import rospy
 import roslibpy     # for web integration
-from gtts import gTTS
-import os
 #Some commented out code is made using match/case, which is Python 3.10, which is too high of a version for Baxter. I kept it in here as it is code I have written. 
 
 #new Board which is a dict that is [type of square, color/name, name, weight]. Weight is used for selling properties and is found using data online on which properties are the most valuable.
@@ -478,7 +476,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           if self.isASet(self.color):
             self.ownedSets.add(self.color)
 
-      else::
+      else:
         self.leftoverMoney = self.playerMoneySum - self.price
         if self.leftoverMoney >= 350:
           self.updateOwnership("oppBuy")
@@ -756,7 +754,6 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       
   def readCardCC(self, cardNum):
     # TODO: Possible feedback here
-    print("I pulled No." + str(cardNum))
     self.namingShortcut()
     #social here, talking about the card pulled.
     if cardNum == 1:
@@ -817,7 +814,6 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
 
   def readCardChance(self, cardNum):
     # TODO: Possible feedback here
-    print("I pulled No." + str(cardNum))
     if cardNum == 1:
       if self.isPlayer == False:
         self.giveMoney(self.house * 25 + self.hotel * 100)
@@ -946,18 +942,15 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
     
   def pullCard(self, cardType):
     # TODO: Voice or Web UI feedback for this
+    choice = input("Which card did you pull?")
     if cardType == "Community Chest":
-        rules.pullCard()
-        card = rospy.wait_for_message('mpCards', Int16).data
-        self.readCardCC(card)
-        self.listOfCC.append(card)
+        self.readCardCC(choice)
+        self.listOfCC.append(choice)
     elif cardType == "Chance":
-        rules.pullCard()
-        card = rospy.wait_for_message('mpCards', Int16).data
       #  self.card = self.listOfChance.pop(0)
-        self.readCardChance(card)
-    if card != 16:
-        self.listOfChance.append(card)
+        self.readCardChance(choice)
+    if choice != 16:
+        self.listOfChance.append(choice)
     else:
         return
   def receiveRent(self, value):
@@ -1005,70 +998,31 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
   def payRent(self):
     # TODO: This information should be communicated to player, either through Voice or UI
     self.namingShortcut()
-    if self.isPlayer == False: # Robot owes player money
+    if self.isPlayer == False:
       if self.oppMort(self.color, self.name):
         print("No rent! This property has been mortgaged!")
       elif self.square == -1 and self.oppSet(self.color):
         if self.color == "Utilities":
-          # Have the robot announce the rent
-          rent = self.move * 10
-          audio = "I owe you" + self.rent + "dollars."
-          language = "en" 
-          audioTalk = gTTS(text=audio, lang=language, slow=False)
-          audioTalk.save("audio.mp3")
-          os.system("mpg321 audio.mp3")
-          self.giveMoney(rent)
-          self.receiveRent(rent)
+          self.giveMoney(self.move * 10)
+          self.receiveRent(self.move * 10)
         else:
           house = self.numHouses(self.color, self.name)
           if house > 4:
-            rent = self.rentLookup(self.name, True, 0, 1)
-            audio = "I owe you" + self.rent + "dollars."
-            language = "en" 
-            audioTalk = gTTS(text=audio, lang=language, slow=False)
-            audioTalk.save("audio.mp3")
-            os.system("mpg321 audio.mp3")
-            self.giveMoney(rent)
-            self.receiveRent(rent)
+            self.giveMoney(self.rentLookup(self.name, True, 0, 1))
+            self.receiveRent(self.rentLookup(self.name, True, 0, 1))
           elif house > 0:
-            rent = self.rentLookup(self.name, True, house)
-            audio = "I owe you" + self.rent + "dollars."
-            language = "en"
-            audioTalk = gTTS(text=audio, lang=language, slow=False)
-            audioTalk.save("audio.mp3")
-            os.system("mpg321 audio.mp3")
-            self.giveMoney(rent)
-            self.receiveRent(rent)
-
+            self.giveMoney(self.rentLookup(self.name, True, house))
+            self.receiveRent(self.rentLookup(self.name, True, house))
           else:
-            rent = self.rentLookup(self.name, True)
-            audio = "I owe you" + self.rent + "dollars."
-            language = "en" 
-            audioTalk = gTTS(text=audio, lang=language, slow=False)
-            audioTalk.save("audio.mp3")
-            os.system("mpg321 audio.mp3")
-            self.giveMoney(rent)
-            self.receiveRent(rent)
-
+            self.giveMoney(self.rentLookup(self.name, True))
+            self.receiveRent(self.rentLookup(self.name, True))
       elif self.square == -1:
         if self.color == "Utilities":
-          rent = self.move * 4
-          audio = "I owe you" + self.rent + "dollars."
-          language = "en"
-          audioTalk = gTTS(text=audio, lang=language, slow=False)
-          audioTalk.save("audio.mp3")
-          os.system("mpg321 audio.mp3")
-          self.giveMoney(rent)
-          self.receiveRent(rent)
+          self.giveMoney(self.move * 4)
+          self.receiveRent(self.move * 4)
         else:
-          rent = self.rentLookup(self.name)
-          audio = "I owe you" + self.rent + "dollars."
-          language = "en" 
-          audioTalk = gTTS(text=audio, lang=language, slow=False)
-          audioTalk.save("audio.mp3")
-          os.system("mpg321 audio.mp3")
-          self.giveMoney(rent)
-          self.receiveRent(rent)
+          self.giveMoney(self.rentLookup(self.name))
+          self.receiveRent(self.rentLookup(self.name)) 
 
       #social here, anger.
 
@@ -1077,66 +1031,26 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         print("No rent! This property has been mortgaged!")
       elif self.square == 1 and self.color in self.ownedSets:
         if self.color == "Utilities":
-          rent = self.move * 10
-          audio = "You owe me" + self.rent + "dollars."
-          language = "en"
-          audioTalk = gTTS(text=audio, lang=language, slow=False)
-          audioTalk.save("audio.mp3")
-          os.system("mpg321 audio.mp3")
-          self.giveMoney(rent)
-          self.receiveRent(rent)
+          self.giveMoney(self.move * 10)
+          self.receiveRent(self.move * 10)
         else:
           house = self.ownedProperties[self.color][self.name][1]
           if house > 4:
-            rent = self.rentLookup(self.name, True, False, True)
-            audio = "You owe me" + self.rent + "dollars."
-            language = "en"
-            audioTalk = gTTS(text=audio, lang=language, slow=False)
-            audioTalk.save("audio.mp3")
-            os.system("mpg321 audio.mp3")
-            self.giveMoney(rent)
-            self.receiveRent(rent)
-
+            self.giveMoney(self.rentLookup(self.name, True, False, True))
+            self.receiveRent(self.rentLookup(self.name, True, False, True))
           elif house > 0:
-            rent = self.rentLookup(self.name, True, house)
-            audio = "You owe me" + self.rent + "dollars."
-            language = "en"
-            audioTalk = gTTS(text=audio, lang=language, slow=False)
-            audioTalk.save("audio.mp3")
-            os.system("mpg321 audio.mp3")
-            self.giveMoney(rent)
-            self.receiveRent(rent)
-
+            self.giveMoney(self.rentLookup(self.name, True, house))
+            self.receiveRent(self.rentLookup(self.name, True, house))
           else:
-            rent = self.rentLookup(self.name, True)
-            audio = "You owe me" + self.rent + "dollars."
-            language = "en"
-            audioTalk = gTTS(text=audio, lang=language, slow=False)
-            audioTalk.save("audio.mp3")
-            os.system("mpg321 audio.mp3")
-            self.giveMoney(rent)
-            self.receiveRent(rent)
-
+            self.giveMoney(self.rentLookup(self.name, True))
+            self.receiveRent(self.rentLookup(self.name, True))
       elif self.square == 1 and self.color not in self.ownedSets:
         if self.color == "Utilities":
-          rent = self.move * 4
-          audio = "You owe me" + self.rent + "dollars."
-          language = "en"
-          audioTalk = gTTS(text=audio, lang=language, slow=False)
-          audioTalk.save("audio.mp3")
-          os.system("mpg321 audio.mp3")
-          self.giveMoney(rent)
-          self.receiveRent(rent)
-
+          self.giveMoney(self.move * 4)
+          self.receiveRent(self.move * 4)
         else:
-          rent = self.rentLookup(self.name)
-          audio = "You owe me" + self.rent + "dollars."
-          language = "en"
-          audioTalk = gTTS(text=audio, lang=language, slow=False)
-          audioTalk.save("audio.mp3")
-          os.system("mpg321 audio.mp3")
-          self.giveMoney(rent)
-          self.receiveRent(rent)
+          self.giveMoney(self.rentLookup(self.name))
+          self.receiveRent(self.rentLookup(self.name))
 
 
   def endTurn(self):
