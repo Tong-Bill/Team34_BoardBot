@@ -1,64 +1,272 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boardbot</title>
     <link rel="stylesheet" href="sessionStyle.css">
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <!--This link seems to be broken as of 4/28/2023
     <script type="text/javascript" src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
     -->
     <script type="text/javascript" src=" https://s3.eu-west-1.amazonaws.com/rosject.io/js/roslib.min.js"></script>
-</head>
-<body>
-    <!--Connect to ros_bridge-->
+
+    <!--Publisher for Starting Game Button-->
     <script type="text/javascript" type="text/javascript">
         var ros = new ROSLIB.Ros({
-            /*
-            url : 'ws://localhost:9090'
-            */
-            
-            url : 'ws://134.197.95.215:9090'
-            
+            /* url : 'ws://localhost:9090' */
+
+            url: 'ws://134.197.95.215:9090'
         });
 
-        ros.on('connection', function() {
+        ros.on('connection', function () {
             console.log('Connected to websocket server.');
         });
 
-        ros.on('error', function(error) {
+        ros.on('error', function (error) {
             console.log('Error connecting to websocket server: ', error);
         });
 
-        ros.on('close', function() {
+        ros.on('close', function () {
             console.log('Connection to websocket server closed.');
         });
 
-        var cmdVel = new ROSLIB.Topic({
+        var publisher = new ROSLIB.Topic({
+            ros: ros,
+            name: '/begin',
+            messageType: 'std_msgs/String'
+        });
+
+        var twist = new ROSLIB.Message({
+            data: '6'
+        });
+
+        publisher.publish(twist);
+    </script>
+
+    <!--Subscriber for player Money-->
+    <script type="text/javascript" type="text/javascript">
+        var playerMoneylistener = new ROSLIB.Topic({
             ros : ros,
-            name : '/begin',
-            messageType : 'std_msgs/String'
+            name : '/playerinfo',
+            messageType : 'std_msgs/Int16'
+        });
+
+        playerMoneylistener.subscribe(function(message) {
+            console.log('Received message on ' + playerMoneylistener.name + ': ' + message.data);
+            var playerMoney = document.getElementById("playerMoney").innerHTML=message.data;
+            //listener.unsubscribe();
+        });
+    </script>
+
+    <!--Subscriber for robot Money-->
+    <script type="text/javascript" type="text/javascript">
+        var robotMoneylistener = new ROSLIB.Topic({
+            ros : ros,
+            name : '/robotinfo',
+            messageType : 'std_msgs/Int16'
+        });
+
+        robotMoneylistener.subscribe(function(message) {
+            console.log('Received message on ' + robotMoneylistener.name + ': ' + message.data);
+            var robotMoney = document.getElementById("robotMoney").innerHTML=message.data;
+        });
+    </script>
+
+    <!--Publisher for Buttons-->
+    <script type="text/javascript" type="text/javascript">
+        var publishControls = new ROSLIB.Topic({
+            ros: ros,
+            name: '/playerinput',
+            messageType: 'std_msgs/Int16'
+        });
+
+        // Buy Property
+        var control1 = new ROSLIB.Message({
+            data: 1
+        });
+        // Buy Building
+        var control2 = new ROSLIB.Message({
+            data: 2
+        });
+        // Mortgage Property
+        var control3 = new ROSLIB.Message({
+            data: 3
+        });
+        // Unmortgage Property
+        var control4 = new ROSLIB.Message({
+            data: 4
+        });
+        // End Turn
+        var control6 = new ROSLIB.Message({
+            data: 6
+        });
+        // Quit Game
+        var control0 = new ROSLIB.Message({
+            data: 0
         });
         
-        var twist = new ROSLIB.Message({
-            data: 'Hello World'
+        function buttonControl(number) {
+            if (number == 1) {
+                publishControls.publish(control1);
+            }
+            else if (number == 2) {
+                publishControls.publish(control2);
+            }
+            else if (number == 3) {
+                publishControls.publish(control3);
+            }
+            else if (number == 4) {
+                publishControls.publish(control4);
+            }
+            else if (number == 6) {
+                publishControls.publish(control6);
+            }
+            else if (number == 0) {
+                publishControls.publish(control0)
+            }
+        }
+    </script>
+
+    <!--Subscriber for Player Assets-->
+    <script type="text/javascript" type="text/javascript">
+        var playerAssetslistener = new ROSLIB.Topic({
+            ros : ros,
+            name : '/playerassets',
+            messageType : 'std_msgs/String'
         });
 
-        cmdVel.publish(twist);
+        playerAssetslistener.subscribe(function(message) {
+            console.log('Received message on ' + playerAssetslistener.name + ': ' + message.data);
+            var playerAssets = document.getElementById("playerAssets").innerHTML=message.data;
+        });
     </script>
+
+    <!--Subscriber for Robot Assets-->
+    <script type="text/javascript" type="text/javascript">
+        var robotAssetslistener = new ROSLIB.Topic({
+            ros : ros,
+            name : '/robotassets',
+            messageType : 'std_msgs/String'
+        });
+
+        robotAssetslistener.subscribe(function(message) {
+            console.log('Received message on ' + robotAssetslistener.name + ': ' + message.data);
+            var robotAssets = document.getElementById("robotAssets").innerHTML=message.data;
+        });
+    </script>
+
+    <!--Publisher for Dice Input-->
+    <script type="text/javascript" type="text/javascript">
+        var publishDice = new ROSLIB.Topic({
+            ros: ros,
+            name: '/diceinput',
+            messageType: 'std_msgs/Int16'
+        });
+
+        function diceControl() {
+        
+        //console.log(document.getElementById('a').value);
+        
+        var diceData = new ROSLIB.Message({
+        data: Number(document.getElementById('a').value.concat(document.getElementById('b').value))
+        }); 
+        publishDice.publish(diceData);
+        }
+    </script>
+
+    <!--Subscriber for announcer text-->
+    <script type="text/javascript" type="text/javascript">
+        var announcerlistener = new ROSLIB.Topic({
+            ros : ros,
+            name : '/announcements',
+            messageType : 'std_msgs/String'
+        });
+
+        announcerlistener.subscribe(function(message) {
+            console.log('Received message on ' + announcerlistener.name + ': ' + message.data);
+            var announceText = document.getElementById("announceText").innerHTML=message.data;
+        });
+    </script>
+
+</head>
+
+<body>
+
     <section class="container">
-        <div class="column1">
-            <h2>1st column</h2>
+        <div class="announcer-text">
+        <h2 id="announceText"></h2>
         </div>
-        <div class="column2">
-            <h2>2nd column</h2>
+        <div class="submit-roll">
+            <h3 for="roll">Input Dice Values</h3>
+            <input id="a" type="number" name="dice1" min="1" max="6" value="1">
+            <input id="b" type="number" name="dice2" min="1" max="6" value="1">
+            <input type="button" value="submit" onclick="diceControl()">
         </div>
-        <div class="column3">
-            <h2>3rd column</h2>
-        </div>
+
     </section>
 
+    <section class="leftboard">
+            <div class="actions">
+                <div class="card">
+                    <div class="card-border"></div>
+                    <div class="icon">
+                        <img src="menu1.jpg" alt="trump icon" width="120px" height="120px">
+                    </div>
+                    <div class="description">
+                        <div class="info">
+                            <h2>About Robot</h2>
+                            <h3>Learn More</h3>
+                            <p>The latest robot taught to compete against humans in Monopoly</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h3 class="robotMoneyLabel">Money ($)</h3>
+            <h3 id="robotMoney"></h3>
+            <h3 class="robotAssetsLabel">Assets</h3>
+            <h3 id="robotAssets"></h3>
+
+    </section>
+
+    <section class="rightboard">
+        <div class="actions">
+            <div class="card">
+                <div class="card-border"></div>
+                <div class="icon">
+                    <img src="doomer.jpg" alt="trump icon" width="120px" height="120px">
+                </div>
+                <div class="description">
+                    <div class="info">
+                        <h2>About Me</h2>
+                        <h3>Learn More</h3>
+                        <p>You have been selected to entertain the robot in a game of Monopoly</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="playerMoneyLabel">Money ($)</h3>
+        <h3 id="playerMoney"></h3>
+        <h3 class="playerAssetsLabel">Assets</h3>
+        <h3 id="playerAssets"></h3>
+        
+    </section>
+
+    <div class="button-container">
+        <!--Buy, Sell, Mortgage, unmortgage, roll dice-->
+        <div class="bottom-btn"><button onclick="buttonControl(1)">Buy</button></div>
+        <div class="bottom-btn"><button onclick="buttonControl(2)">Buy Buildings</button></div>
+        <div class="bottom-btn"><button onclick="buttonControl(3)">Mortgage</button></div> 
+        <div class="bottom-btn"><button onclick="buttonControl(4)">Unmortgage</button></div>
+        <div class="bottom-btn"><button onclick="buttonControl(6)">End Turn</button></div>
+        <div class="bottom-btn"><button onclick="buttonControl(0); history.back()">Quit Game</button></div>
+    </div>
+
 </body>
+    <script type="text/javascript"></script>
+
 </html>
