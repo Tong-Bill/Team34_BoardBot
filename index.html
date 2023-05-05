@@ -30,9 +30,13 @@
           <li><span>robotic monopoly player</span></li>
         </ul>
       </h3>
-      <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Totam natus recusandae fuga commodi a obcaecati
-        dolores
-        harum laboriosam sunt esse, veniam officiis! Fugiat delectus dolore nobis eum quae? Quis, deserunt.</p>
+      <p>Team 34’s goal is to create an intelligent, engaging, and responsive robotic Monopoly player. This product's
+        target audience is directed towards those who desire a companion when playing board games, like the elderly and
+        children. While robots capable of playing more traditional board games such as chess already exist, Boardbot
+        explores the field of social interaction, a field widely left out in the current generation of robots.
+        The main purpose of the project is to delve into human-robot interactions
+        through the usage of robots and Monopoly in hopes of solving loneliness and other social issues prevalent in
+        society.</p>
       <div class="button-container">
         <a href="session.html">Play Now</a>
       </div>
@@ -51,50 +55,46 @@
           <div class="left-side">
             <div>
               <h2>Social Interaction</h2>
-              <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Asperiores impedit doloribus minima porro,
-                quos quam iusto laboriosam tenetur, error commodi sit quidem. Libero voluptate quo, mollitia fugiat ex
-                quos consequatur!</p>
+              <p>The robot interacts with people through the usage of face emojis and a Trump text-to-speech voice over
+                trained from the Tortoise TTS machine learning model.</p>
             </div>
             <div>
               <h2>Computer Vision</h2>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto quasi laboriosam exercitationem
-                similique debitis quo expedita commodi, velit quia recusandae culpa libero consequatur ipsam ratione
-                nam animi est dolores quas!</p>
+              <p>Recognizing dice rolls with precision and separating Monopoly related objects on the boardspace from
+                unrelated debris allows for semi-autonomous rounds to be performed by the robot.</p>
             </div>
             <div>
               <h2>Motion Planning</h2>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores voluptatum, reiciendis odio laborum
-                labore ex fugiat nobis error doloremque. Quisquam cupiditate dolorem voluptates dolorum ducimus
-                tenetur nostrum. Architecto, pariatur quia?</p>
+              <p>Using Rviz and the Gazebo simulator, arm & gripper actions from the Baxter robot can be planned out
+                before physical execution to ensure the safety of users.</p>
             </div>
             <div>
               <h2>Game Rules</h2>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta, quasi repellat optio dicta accusamus
-                ullam officiis veritatis provident voluptatibus cumque esse nemo fuga obcaecati ipsa sint quaerat
-                inventore quam enim!</p>
+              <p>Correct Monopoly game mechanics and rules for operation are implemented to ensure fair play and
+                familiarity for those who have played the official board game.</p>
             </div>
             <div>
               <h2>AI</h2>
-              <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quasi quis quisquam perferendis ut sunt rem
-                quae, dolorum obcaecati iste accusantium nisi corporis non reprehenderit atque tempore impedit quod.
-                Rem, et!</p>
+              <p>Acting as the brain of the entire system, the AI is responsible for keeping track of the game state as
+                well as receiving, processing, and sending information as needed to other components during a game
+                session.</p>
             </div>
           </div>
           <div class="right-side">
             <div>
-              <img src="nature1.jpg" alt="picture of nature">
+              <img src="AiPanel.jpg" alt="picture of nature">
             </div>
             <div>
-              <img src="nature2.jpg" alt="picture of nature">
+              <img src="RulesPanel.jpg" alt="picture of nature">
             </div>
             <div>
-              <img src="nature1.jpg" alt="picture of nature">
+              <img src="MotionPanel.jpg" alt="picture of nature">
             </div>
             <div>
-              <img src="nature2.jpg" alt="picture of nature">
+              <img src="VisionPanel.jpg" alt="picture of nature">
             </div>
             <div>
-              <img src="nature1.jpg" alt="picture of nature">
+              <img src="SocialPanel.jpg" alt="picture of nature">
             </div>
           </div>
         </div>
@@ -106,26 +106,26 @@
   <script type="text/javascript">
     let imageSlider = document.querySelector(".image-slider");
     let thisPanel = 0;
-    let numberOfPanels = imageSlider.querySelectorAll(".wrapper .left-side > div").length -1;
+    let numberOfPanels = imageSlider.querySelectorAll(".wrapper .left-side > div").length - 1;
 
-    imageSlider.querySelector(".control-slider .up").addEventListener("click", function() {
-      if(thisPanel == 0) {
+    imageSlider.querySelector(".control-slider .up").addEventListener("click", function () {
+      if (thisPanel == 0) {
         return;
       }
       thisPanel--;
       // -100 viewpoint height to switch to next panel
-      imageSlider.querySelector(".wrapper .left-side div").style.marginTop = `${thisPanel*-100}vh`;
-      imageSlider.querySelector(".wrapper .right-side div").style.marginTop = `${(numberOfPanels-thisPanel)*-100}vh`;
+      imageSlider.querySelector(".wrapper .left-side div").style.marginTop = `${thisPanel * -100}vh`;
+      imageSlider.querySelector(".wrapper .right-side div").style.marginTop = `${(numberOfPanels - thisPanel) * -100}vh`;
     }
     );
 
-    imageSlider.querySelector(".control-slider .down").addEventListener("click", function() {
-      if(thisPanel == numberOfPanels) {
+    imageSlider.querySelector(".control-slider .down").addEventListener("click", function () {
+      if (thisPanel == numberOfPanels) {
         return;
       }
       thisPanel++;
-      imageSlider.querySelector(".wrapper .left-side div").style.marginTop = `${thisPanel*-100}vh`;
-      imageSlider.querySelector(".wrapper .right-side div").style.marginTop = `${(numberOfPanels-thisPanel)*-100}vh`;
+      imageSlider.querySelector(".wrapper .left-side div").style.marginTop = `${thisPanel * -100}vh`;
+      imageSlider.querySelector(".wrapper .right-side div").style.marginTop = `${(numberOfPanels - thisPanel) * -100}vh`;
     }
     );
 
