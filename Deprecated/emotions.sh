@@ -1,5 +1,6 @@
 # Author: Bill Tong
 # Objective: Loop through emotions on Baxter display
+# Used for demonstration of old faces, deprecated in favor of individual emotion bash script from the emotions folder
 
 source /home/bill/baxterws/devel/setup.bash
 
