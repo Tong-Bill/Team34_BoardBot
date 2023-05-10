@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#Main Author: Yee Hong Tham
 import rules
 import subprocess
 import trump
