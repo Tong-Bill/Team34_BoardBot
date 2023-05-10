@@ -1,3 +1,6 @@
+// Author: Bill Tong
+// Precursor to existing Trump.py file, deprecated with the introduction of the Trump voice
+
 from gtts import gTTS
 import os
 import random
