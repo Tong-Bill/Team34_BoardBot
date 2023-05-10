@@ -1,3 +1,6 @@
+// Author: Bill Tong
+// Scrapped in favor of a new Web User Interface
+
 import 'package:flutter/material.dart';
 import 'package:boardbot_app/about.dart';
 import 'package:boardbot_app/info.dart';
