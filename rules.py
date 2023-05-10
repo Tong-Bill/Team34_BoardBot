@@ -9,11 +9,11 @@ that will make decisions based on the responses of the rules
 """
 
 import rospy
+from std_msgs.msg import (Int16, String, Int16MultiArray)
 import sys
 import os
 import random           # for random dice values
 from math import ceil   # for rounding
-from std_msgs.msg import String
 
 def gameSetup():
     print("\n\nBegin setup:")
@@ -23,9 +23,9 @@ def gameSetup():
     print("Please shuffle the Community Chest and Chance cards, and place them facedown in their designated areas.")
     print("Choose a token. I will use my special token for easier gripping.")
     print("Roll the dice. High roll goes first.\n")
-    result = rollDice()
+    result = autoRollDice()
     print("I rolled {0}\n".format(result))
-
+    return result
 # end gameSetup
 
 
@@ -117,38 +117,68 @@ class TitleDeedCards(object):
         #   {spaceNumber: [[base rent, set rent, 1 house rent... hotel rent], buildCost, mortgage value]
         #   Note that spaceNumber corresponds to keys in board dict (see BoardSpaces class)
         #   Unmortgage is: 1.1 * mortgage_value, rounded up
-     cards = {1: [[2, 4, 10, 30, 90, 160, 250], 50, 30],        # Mediterranean
-           3: [[4, 8, 20, 60, 180, 320, 450], 50, 30],          # Baltic
-           5: [[25, 50, 100, 200], 100],                        # Reading R.R.
-           6: [[6, 12, 30, 90, 270, 400, 550], 50, 50],         # Oriental
-           8: [[6, 12, 30, 90, 270, 400, 550], 50, 50],         # Vermont 
-           9: [[8, 16, 40, 100, 300, 450, 600], 50, 60],        # Connecticut 
-           11:[[10, 20, 50, 150, 450, 625, 750], 100, 70],      # St. Charles
-           12:[[4, 10], 75],                                    # Electric Co. Note that rent is value * dice total for that turn
-           13:[[10, 20, 50, 150, 450, 625, 750], 100, 70],      # States
-           14:[[12, 24, 60, 180, 500, 700, 900], 100, 80],      # Virginia
-           15:[[25, 50, 100, 200], 100],                        # Pennsylvania R.R.
-           16:[[14, 28, 70, 200, 550, 750, 950], 100, 90],      # St. James
-           18:[[14, 28, 70, 200, 550, 750, 950], 100, 90],      # Tennessee
-           19:[[16, 32, 80, 220, 600, 800, 1000], 100, 100],    # New York
-           21:[[18, 36, 90, 250, 700, 875, 1050], 150, 110],    # Kentucky
-           23:[[18, 36, 90, 250, 700, 875, 1050], 150, 110],    # Indiana
-           24:[[20, 40, 100, 300, 750, 925, 1100], 150, 120],   # Illinois
-           25:[[25, 50, 100, 200], 100],                        # B&O R.R.
-           26:[[22, 44, 110, 330, 800, 975, 1150], 150, 130],   # Atlantic
-           27:[[22, 44, 110, 330, 800, 975, 1150], 150, 130],   # Ventor
-           28:[[4, 10], 75],                                    # Water Works Co. Note that rent is value * dice total for that turn
-           29:[[24, 48, 120, 360, 850, 1025, 1200], 150, 140],  # Marvin
-           31:[[26, 52, 130, 390, 900, 1100, 1275], 200, 150],  # Pacific
-           32:[[26, 52, 130, 390, 900, 1100, 1275], 200, 150],  # North Carolina
-           34:[[28, 56, 150, 450, 1000, 1200, 1400], 200, 160], # Pennsylvania Ave
-           35:[[25, 50, 100, 200], 100],                        # Shortline R.R.
-           37:[[35, 70, 175, 500, 1100, 1300, 1500], 200, 175], # Park Place
-           39:[[50, 100, 200, 600, 1400, 1700, 2000], 200, 200],# Boardwalk
-          }
+    cards = {"Mediterranean Avenue": [1, [2, 4, 10, 30, 90, 160, 250], 30, 50],
+               "Baltic Avenue": [3, [4, 8, 20, 60, 180, 320, 450], 30, 50],
+               "Reading Railroad": [5, [25, 50, 100, 200], 100],                        
+               "Oriental Avenue": [6, [6, 12, 30, 90, 270, 400, 550], 50, 50],         
+               "Vermont Avenue": [8, [6, 12, 30, 90, 270, 400, 550], 50, 50], 
+               "Connecticut Avenue": [9, [8, 16, 40, 100, 300, 450, 600], 60, 50],         
+               "St Charles Place":[11, [10, 20, 50, 150, 450, 625, 750], 70, 100],
+               "Electric Company":[12, [4, 10], 75],
+               "States Avenue":[13, [10, 20, 50, 150, 450, 625, 750], 70, 100],
+               "Virginia Avenue":[14, [12, 24, 60, 180, 500, 700, 900], 80, 100],
+               "Pennsylvania Railroad":[15, [25, 50, 100, 200], 100],                        
+               "St James Place":[16, [14, 28, 70, 200, 550, 750, 950], 90, 100],     
+               "Tennessee Avenue":[18, [14, 28, 70, 200, 550, 750, 950], 90, 100],     
+               "New York Avenue":[19, [16, 32, 80, 220, 600, 800, 1000], 100, 100],
+               "Kentucky Avenue":[21, [18, 36, 90, 250, 700, 875, 1050], 110, 150],
+               "Indiana Avenue":[23, [18, 36, 90, 250, 700, 875, 1050], 110, 150],
+               "Illinois Avenue":[24, [20, 40, 100, 300, 750, 925, 1100], 110, 120],
+               "B&O Railroad":[25, [25, 50, 100, 200], 100],
+               "Atlantic Avenue":[26, [22, 44, 110, 330, 800, 975, 1150], 130, 150],
+               "Ventnor Avenue":[27, [22, 44, 110, 330, 800, 975, 1150], 130, 150],
+               "Water Works":[28, [4, 10], 75],
+               "Marvin Gardens":[29, [24, 48, 120, 360, 850, 1025, 1200], 140, 150],
+               "Pacific Avenue":[31, [26, 52, 130, 390, 900, 1100, 1275], 150, 200],
+               "North Carolina Avenue":[32, [26, 52, 130, 390, 900, 1100, 1275], 150, 200], 
+               "Pennsylvania Avenue":[34, [28, 56, 150, 450, 1000, 1200, 1400], 160, 200], 
+               "Shortline":[35, [25, 50, 100, 200], 100],
+               "Park Place":[37, [35, 70, 175, 500, 1100, 1300, 1500], 175, 200],
+               "Boardwalk":[39, [50, 100, 200, 600, 1400, 1700, 2000], 200, 200]
+              }
+
+        # Maps an april tag ID from computer vision to the name of a card
+        cv_match = {44: "Mediterranean Avenue",
+            45: "Baltic Avenue",
+            37: "Reading Railroad",
+            41: "Oriental Avenue",
+            42: "Vermont Avenue",
+            43: "Connecticut Avenue",
+            39: "St Charles Place",
+            32: "Electric Company",
+            40: "States Avenue",
+            38: "Virginia Avenue",
+            35: "Pennsylvania Railroad",
+            54: "St James Place",
+            55: "Tennessee Avenue",
+            56: "New York Avenue",
+            57: "Kentucky Avenue",
+            58: "Indiana Avenue",
+            59: "Illinois Avenue",
+            34: "B&O Railroad",
+            49: "Atlantic Avenue",
+            50: "Ventnor Avenue",
+            33: "Water Works",
+            51: "Marvin Gardens",
+            46: "Pacific Avenue",
+            47: "North Carolina Avenue",
+            48: "Pennsylvania Avenue",
+            36: "Shortline",
+            52: "Park Place",
+            53: "Boardwalk"}
 
      # Return the rent of a space based on presence of a set and number of buildings
-     # TODO: implement rent mechanics for utilites
+     # Utility rent is handled in AI
      def rentLookup(self, space, isSet = False, numHouses = 0, numHotel = 0, isMortgaged = False):
          try:
             rentList = self.cards[space][0]    
@@ -173,13 +203,17 @@ class TitleDeedCards(object):
      # get the cash value of mortgaging a property
      def mortgageProperty(self, space):
          return self.cards[space][2]
+        
+     def getSquare(self, space):
+       return self.cards[space][0]
 
-     def unmortgageProperty(self, space, payment):
-         cost = ceil(self.cards[space][2] * 1.1) # round up to next integer
-         if payment < cost:
-             print("Insufficent payment: got " + str(cost) + ", need " + str(payment) + ".")
-         else:
-             print("Payment received, property is unmortgaged. You may collect rent on it.")
+
+ #    def unmortgageProperty(self, space, payment):
+ #        cost = ceil(self.cards[space][2] * 1.1) # round up to next integer
+ #        if payment < cost:
+ #            print("Insufficent payment: got " + str(cost) + ", need " + str(payment) + ".")
+ #        else:
+ #            print("Payment received, property is unmortgaged. You may collect rent on it.")
 
 class Buildings(object):
     # Quantity of houses and hotels. Cannot build if all buildings are allocated
@@ -194,6 +228,41 @@ class Buildings(object):
     def sell(self, currentBuildStatus):
     """
 
+# This class handles the mechanics of building; it will only be called if the player has met financial conditions
+class Buildings(object):
+    # Quantity of houses and hotelsi in game. Cannot build if all buildings are allocated
+    house_count = 34
+    hotel_count = 13
+
+    # numHouses: number of houses on the property to be built on
+    # lowest_set_house_count: all properties in set must be within 1 house of each other
+    # mortgage: bool, checks if any properties in the set are mortgaged
+    def buildHouse(self, num_houses, lowest_set_house_count, mortgage):
+        if mortgage is True:
+            return "error: mortgaged properties in set" 
+        elif num_houses > 4:
+            return "error: numHouses > 4" # Attempted to build a 5th house
+        elif num_houses > (lowest_set_house_count + 1):
+            return "error: numHouses not equal" # Properties in set do not have an equal number of houses
+        elif num_houses <= 0:
+            return "error: houseCount = 0"  # No houses remaining in supply
+
+        num_houses = num_houses - 1
+        return "house"  
+        
+    def buildHotel(self, numHouses, hotelCount, mortgage):
+        if mortgage is True:
+            return "error: mortgaged properties in set"
+        elif numHouses < 4:
+            return "error: numHouses < 4" # must have 4 houses before a hotel can be built
+        elif hotelCount <= 0:
+            return "error: hotelCount = 0" # No hotel remaining in supply
+
+        hotelCount = hotelCount - 1
+        numHouses = numHouses + 4   # houses must be return to supply!
+        return "hotel; houses -4"
+    
+    
 
 class ChanceCommunityCards(object):
 
@@ -237,20 +306,12 @@ class ChanceCommunityCards(object):
             }
     
 
-# Message Topic: Turn information
-# Contents:
-# String
-
-# This will be expanded later
-# To create this message type:
-# https://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv
-# Substitute "num" for "Turn information"
-
 
 
 
 #class playerTurn():
 # Parts of this code is adapted from https://wiki.ros.org/ROS/Tutorials/WritingPublisherSubscriber%28python%29
+# This is a test to demonstrate proper play for a turn.
 def playerTurn():
     doublesCount = 0    # Track the number of doubles rolled
 #def takeTurn():
@@ -360,25 +421,18 @@ def evaluateDice(diceRoll):
 
     return False
 
-#class Money:
-#    def PayMoney():
 
+def main():
+    rospy.init_node('rules')
+    
+    # Wait for the AI to signal that it is ready to begin playing
+    # rospy.wait_for_message("Begin game", empty)
 
-#def gainMoney():
+    gameSetup() # Init the game state
+    rospy.sleep(1)
 
-
-
-#def main():
-#    rospy.init_node('rules')
-#    
-#    # Wait for the AI to signal that it is ready to begin playing
-#    # rospy.wait_for_message("Begin game", empty)
-#
-#    gameSetup() # Init the game state
-#    rospy.sleep(1)
-#
-#    while not rospy.is_shutdown():
-#            result = rollDice()
+    while not rospy.is_shutdown():
+            result = rollDice()
             
 
 if __name__ == '__main__':
