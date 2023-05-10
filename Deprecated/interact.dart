@@ -1,3 +1,6 @@
+// Author: Bill Tong
+// Scrapped in favor of a new Web User Interface
+
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
