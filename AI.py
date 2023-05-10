@@ -1,20 +1,18 @@
 #!/usr/bin/env python
+#Main Author: Yee Hong Tham
 import rules
 import subprocess
+import trump
 from time import sleep
 import random as rd
-from std_msgs.msg import (Int16, String,)
+from std_msgs.msg import (Int16, String, Int16MultiArray)
 import rospy
 import roslibpy     # for web integration
+from gtts import gTTS
+import os
 #Some commented out code is made using match/case, which is Python 3.10, which is too high of a version for Baxter. I kept it in here as it is code I have written. 
 
 #new Board which is a dict that is [type of square, color/name, name, weight]. Weight is used for selling properties and is found using data online on which properties are the most valuable.
-
-def writePublisher(diceRoll):
-  pub = rospy.Publisher('spaceInfo', Int16, queue_size = 10) # Message "object": Topic name, message type, number of messages to queue up
-  
-  rate = rospy.Rate(1)   # send at 1 Hz intervals
-  pub.publish(diceRoll)
     
 class board(rules.BoardSpaces, rules.TitleDeedCards):
   Board = {
@@ -64,7 +62,7 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
     self.isPlayer = player
     self.currPos = 0
     self.playerPos = 0
-    self.turnCounter = 10
+    self.turnCounter = 10 # TODO: Is this outdated? Seems like this should be removed
     #numPlayers = input("How many players are playing?: ")
     self.numPlayers = 1
     self.weights = {
@@ -92,6 +90,11 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
       self.price = self.board[x][3]
 
   def updatePosition(self, sum):
+    movement = 0
+    if(self.isPlayer == False):
+        while movement != 2:
+            movement = rospy.wait_for_message("moveState", Int16).data
+    #global
     self.move = sum
     if self.isPlayer == True:
       if self.playerInJail == True:
@@ -118,29 +121,15 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
 
     self.namingShortcut()
 
-    if self.square == -2:
+    if self.square == -2: # -2: this space cannot be bought (Go, Jail, etc.)
       if self.isPlayer == False:
         #Say what square it lands on.
         print("I landed on " + self.name)
       else:
         print("You've landed on " + self.name)
-      """match self.name:
-        case "CommunityChest":
-          self.pullCard()
-        case "Chance":
-          self.pullCard()
-        case "IncomeTax":
-          if self.isPlayer == False:
-            self.giveMoney(min(200, self.robotMoneySum * 0.1))
-          else:
-            self.giveMoney(min(200, self.playerMoneySum * 0.1))
-        case "Go To Jail":
-          self.currPos = 10
-          self.inJail = True
-        case "Luxury Tax":
-          self.giveMoney(75)"""
 
       if self.name == "Community Chest":
+        print("Pulling card")
         self.pullCard(self.name)
       elif self.name == "Chance":
         self.pullCard(self.name)
@@ -176,10 +165,6 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
     elif change == "oppBuy":
       self.Board[self.playerPos][0] = -1
     print("Board state updated.")
-
-def isDouble(self, d1, d2):
-  return d1 == d2
-
 
 class Assets(board):
 
@@ -302,8 +287,13 @@ class Assets(board):
     self.robotMortgaged, self.playerMortgaged = [], []
 
   def gainMoney(self, amount):
+    global server
+    global webRobotInfoPublisher
+    global webPlayerInfoPublisher
     if self.isPlayer == False:
       self.robotMoneySum += amount
+      moneyMsg = roslibpy.Message({'data': (self.robotMoneySum)}) # send info to web UI
+      webRobotInfoPublisher.publish(moneyMsg)
       while amount > 0:
         for i in self.robotMoney:
           if amount >= i:
@@ -314,7 +304,10 @@ class Assets(board):
           if amount == 0:
             return
     else:
+      # TODO: If this is the player gaining money, then Web UI should reflect this
       self.playerMoneySum += amount
+      moneyMsg = roslibpy.Message({'data': (self.playerMoneySum)}) # send info to web UI
+      webPlayerInfoPublisher.publish(moneyMsg)
       while amount > 0:
         for i in self.playerMoney:
           if amount >= i:
@@ -324,13 +317,17 @@ class Assets(board):
             amount -= (i * temp)
           if amount == 0:
             return
-  def webPublisher(self, server):
-    moneyTalker = roslibpy.Topic(server, '/Assets', 'std_smgs/String')
+  """def webPublisher(self):
+    client = roslibpy.Ros(host='134.197.95.215', port=9090)
+    client.run()
+    moneyTalker = roslibpy.Topic(client, '/Assets', 'std_smgs/String')
     #propTalker = roslibpy.Topic(server, '/Assets', 'std_smgs/String')
-    if server.is_connected:
+    if client.is_connected:
       print("True")
       moneyTalker.publish(roslibpy.Message({'data': str(self.robotMoneySum)}))
       #propTalker.publish(roslibpy.Message({'data': str(self.robotOwnedProperties)}))
+    client.terminate()"""
+  # Used to calcuate change for cash  
   def closest(self, value):
     cash = []
     if self.isPlayer == False:
@@ -344,21 +341,27 @@ class Assets(board):
     return cash[min(range(len(cash)), key = lambda i: abs(cash[i] - value))]
     
   def giveMoney(self, amount):
-    
+    global server
+    global webRobotInfoPublisher
+    global webPlayerInfoPublisher
     if self.isPlayer == False:
       self.robotMoneySum -= amount
-      while amount > 0:
-        x = self.closest(amount)
-        try:
+      if self.robotMoneySum >= 0:
+        while amount > 0:
+          x = self.closest(amount)
           amount = self.payAmount(x, amount)
-        except:
-          print("Error!")
-        if amount < 0:
-          self.gainMoney(amount * -1)
-          self.robotMoneySum += amount
-          return
-        elif amount == 0:
-          return
+          if amount < 0:
+            self.gainMoney(amount * -1)
+            self.robotMoneySum += amount
+            moneyMsg = roslibpy.Message({'data': (self.robotMoneySum)}) # send info to web UI
+            webRobotInfoPublisher.publish(moneyMsg)
+            return
+          elif amount == 0:
+            moneyMsg = roslibpy.Message({'data': (self.robotMoneySum)}) # send info to web UI
+            webRobotInfoPublisher.publish(moneyMsg)
+            return
+      else:
+        return -1
           
     else:
       self.playerMoneySum -= amount
@@ -371,8 +374,12 @@ class Assets(board):
         if amount < 0:
           self.gainMoney(amount * -1)
           self.playerMoneySum += amount
+          moneyMsg = roslibpy.Message({'data': (self.playerMoneySum)}) # send info to web UI
+          webPlayerInfoPublisher.publish(moneyMsg)
           return
         elif amount == 0:
+          moneyMsg = roslibpy.Message({'data': (self.playerMoneySum)}) # send info to web UI
+          webPlayerInfoPublisher.publish(moneyMsg)
           return
           
   def numHouses(self, color, name):
@@ -431,6 +438,8 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
     self.gainMoney(200)
 
   def buy(self):
+    global webRobotPropertyPublisher
+    global webPlayerPropertyPublisher
     self.namingShortcut()
     if self.square == 0:
       if self.isPlayer == False:
@@ -440,12 +449,16 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           self.giveMoney(self.price)
           self.ownedProperties[self.color][self.name][0] = True
           self.robotOwnedProperty.append(self.name)
+          tempString = ', '.join(self.robotOwnedProperty) # Collapse list into string
+          propMsg = roslibpy.Message({'data': tempString})
+          webRobotPropertyPublisher.publish(propMsg) # Update web UI with property info
           self.robotNumProperties += 1
+          # - BILL TONG
           #Social aspect here, saying that they bought xxx property.
           if self.isASet(self.color):
             self.ownedSets.add(self.color)
 
-      else:
+      else::
         self.leftoverMoney = self.playerMoneySum - self.price
         if self.leftoverMoney >= 350:
           self.updateOwnership("oppBuy")
@@ -453,8 +466,12 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           self.playerOwnedProperties[self.color][self.name][0] = True
           self.playerOwnedProperty.append(self.name)
           self.playerNumProperties += 1
+          tempString = ', '.join(self.playerOwnedProperty) # Collapse list into string
+          propMsg = roslibpy.Message({'data': tempString})
+          webPlayerPropertyPublisher.publish(propMsg) # Update web UI with property info
+
           if self.isASet(self.color):
-            self.ownedSets.add(self.color)
+            self.playerOwnedSets.add(self.color)
 
   def buyHouse(self, color):
     prop = dict()
@@ -473,8 +490,8 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         key = rd.choice(min_keys)
         self.addHouse(color, key)
 
-    elif self.isPlayer == True and self.isSet(
-        color) and not self.isMortgaged(color) == False:
+    elif self.isPlayer and self.isASet(color) and not self.hasMortgaged(color):
+      
       for name in self.playerOwnedProperties[color]:
         prop[name] = self.playerOwnedProperties[color][name][1]
       for key, value in prop.items():
@@ -483,6 +500,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         else:
           print("There is a hotel on " + key)
       choice = input("Choose Property: ")
+      print("It will cost " + str(self.cards[choice][3]))
       if choice in prop.keys():
         most_houses = max(prop.values())
         if all(v == most_houses for v in prop.values()):
@@ -494,27 +512,78 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           else:
             print("Please distribute the houses evenly!")
             return
-
+            
   def addHouse(self, color, choice):
     price = self.robotMoneySum - self.getBuildCost(choice)
 
     if price >= 350 and self.isPlayer == False:
       print("Adding a house to " + choice)
-      self.giveMoney(self.cards[choice][1])
-      if self.isPlayer == True:
-        self.playerOwnedProperties[color][choice][1] += 1
-      else:
-        self.ownedProperties[color][choice][1] += 1
+      self.giveMoney(self.cards[choice][3])
+      self.ownedProperties[color][choice][1] += 1
+      self.house += 1
 
     elif self.isPlayer == True:
       print("Adding a house to " + choice)
-      self.giveMoney(self.cards[choice][1])
-      if self.isPlayer == True:
-        self.playerOwnedProperties[color][choice][1] += 1
+      self.giveMoney(self.cards[choice][3])
+      self.playerOwnedProperties[color][choice][1] += 1
+      self.playerHouse += 1
+      
+  def sellHouse(self):
+    prop = {}
+    if not self.isPlayer:
+      wgt = {k: v for k, v in sorted(self.weights.items(), key=lambda item: item[1])}
+      for color in self.ownedSets: 
+        prop[color] = {}
+        
+      for color in prop:
+        for name in self.ownedProperties[color]:
+          if self.ownedProperties[color][name][1] > 0:
+            prop[color][name] = self.ownedProperties[color][name][1]
+      worst = ""
+      x = float("inf")
+      for color in prop: 
+        if wgt[color] < x:
+          x = wgt[color]
+          worst = color
+      most_houses = max(prop[worst].values())
+      if all(value == most_houses for value in prop[worst].values()):
+        house = rd.choice(list(prop[worst].keys()))
+        self.removeHouse(worst, house)
       else:
-        self.ownedProperties[color][choice][1] += 1
+        most_keys = [m for m in prop if prop[worst][m] == most_houses]
+        key = rd.choice(most_keys)
+        self.removeHouse(worst, key)
+    else:
+      for color in self.playerOwnedSets: 
+        prop[color] = {}
+        
+      for color in prop:
+        for name in self.playerOwnedProperties[color]:
+          if self.playerOwnedProperties[color][name][1] > 0:
+            prop[color][name] = self.playerOwnedProperties[color][name][1]
+      print(prop)
+      choice = input("Which house would you like to sell?: ")
+      for color in prop:
+        if choice in prop[color]:
+          most_house = prop[color].values()
+          if prop[self.returnColor(choice)][choice] == most_house:
+            self.removeHouse(self.returnColor(choice), choice)
 
+      
+  def removeHouse(self, color, choice):
+    if self.isPlayer == False:
+      print("Selling a house from " + str(choice))
+      self.gainMoney(self.cards[choice][3])
+      self.ownedProperties[color][choice][1] -= 1
+      self.house -= 1
+
+    elif self.isPlayer == True:
+      print("Selling a house from " + str(choice))
+      self.gainMoney(self.cards[choice][3])
+      self.playerOwnedProperties[color][choice][1] -= 1
+      self.playerHouse -= 1  
   def mortgage(self):
+    # TODO: If player's choice, present this via Web UI
     prop = dict()
     if self.isPlayer == True:
       for color in self.playerOwnedProperties:
@@ -524,6 +593,9 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           for name in self.playerOwnedProperties[color]:
             if self.playerOwnedProperties[color][name][1] != 0:
               print("Please sell your houses first!")
+              # - BILL TONG
+              subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/confused.sh'], shell=True)
+              trump.dialogue(3)
               return
             else:
               prop[color].append(name)
@@ -532,19 +604,16 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
             if self.playerOwnedProperties[color][name][0] == True:
               prop[color].append(name)
       print(prop)
+      # - BILL TONG
+      subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/worried.sh'], shell=True)
+      trump.dialogue(4)
       choice = input("Which property would you like to mortgage?: ")
       for color in prop:
         if color in self.playerOwnedSets and choice in prop[color]:
           choice2 = input(
             "Are your sure? You will not be able to buy houses in this color set anymore [y/n]: "
           )
-          """match choice2:
-            case "y":
-              self.gainMoney(self.cards[choice][2])
-              self.playerOwnedProperties[color][choice][2] = True
-              return
-            case "n":
-              return"""
+          
           if choice2 == "y":
             self.gainMoney(self.cards[choice][1])
             self.playerOwnedProperties[color][choice][2] = True
@@ -553,7 +622,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           elif choice2 == "n":
             return
         elif choice in prop[color]:
-          self.gainMoney(self.cards[choice][1])
+          self.gainMoney(self.cards[choice][2])
           self.playerOwnedProperties[color][choice][2] = True
           self.playerMortgaged.append(choice)
           return
@@ -585,7 +654,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           if self.cards[prop][1] > y:
             p = prop
             y = self.cards[prop][1]
-      self.gainMoney(self.cards[p][1])
+      self.gainMoney(self.cards[p][2])
       self.robotMortgaged.append(p)
       for color in self.ownedProperties:
         if p in self.ownedProperties[color]:
@@ -645,7 +714,11 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
     else:
       mort = self.listMortgaged()
       print(mort)
+      # - BILL TONG
+      subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/worried.sh'], shell=True)
+      trump.dialogue(5)
       prop = input("Which property would you like to unmortgage?: ")
+      # TODO: Web UI input here
       if prop in mort and self.playerMoneySum - self.unmortgageProperty(prop) > 0:
         self.giveMoney(self.unmortgageProperty(prop))
         self.playerOwnedProperties[self.returnColor(prop)][prop][2] = True
@@ -656,6 +729,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         
       
   def readCardCC(self, cardNum):
+    # TODO: Possible feedback here
     print("I pulled No." + str(cardNum))
     self.namingShortcut()
     #social here, talking about the card pulled.
@@ -694,28 +768,9 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       self.goToJail()
     elif cardNum == 16:
       self.getJailCard()
-      
-    """match cardNum:
-      case 1:
-        if self.isPlayer == False:
-          self.giveMoney(self.house * 40 + self.hotel * 110)
-        else:
-          self.giveMoney(self.playerHouse * 40 + self.playerHotel * 110)
-      case 2:
-        self.currPos = 0
-        self.passGo()
-      case 3:
-        self.gainMoney(10)
-      case 4:
-        self.gainMoney(50)
-      case 5:
-        self.gainMoney(100)
-      case 6:
-        self.gainMoney(10 * self.numPlayers)
-      case 6:
-        return False"""
 
   def readCardChance(self, cardNum):
+    # TODO: Possible feedback here
     print("I pulled No." + str(cardNum))
     if cardNum == 1:
       if self.isPlayer == False:
@@ -751,6 +806,9 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
             break
         self.namingShortcut()
         if self.square == 0:
+          # - BILL TONG
+          subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/worried.sh'], shell=True)
+          trump.dialogue(0)
           choice = input("Would you like to buy the railroad? [y/n]")
           if choice == "y":
             self.buy()
@@ -794,6 +852,9 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
             break
         self.namingShortcut()
         if self.square == 0:
+          # - BILL TONG
+          subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/worried.sh'], shell=True)
+          trump.dialogue(1)
           choice = input("Would you like to buy the Utility? [y/n]")
           if choice == "y":
             self.buy()
@@ -838,16 +899,20 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         
     
   def pullCard(self, cardType):
+    # TODO: Voice or Web UI feedback for this
     if cardType == "Community Chest":
-      self.card = self.listOfCC.pop(0)
-      self.readCardCC(self.card)
-      self.listOfCC.append(self.card)
+        rules.pullCard()
+        card = rospy.wait_for_message('mpCards', Int16).data
+        self.readCardCC(card)
+        self.listOfCC.append(card)
     elif cardType == "Chance":
-      self.card = self.listOfChance.pop(0)
-      self.readCardChance(self.card)
-      if self.card != 16:
-        self.listOfChance.append(self.card)
-      else:
+        rules.pullCard()
+        card = rospy.wait_for_message('mpCards', Int16).data
+      #  self.card = self.listOfChance.pop(0)
+        self.readCardChance(card)
+    if card != 16:
+        self.listOfChance.append(card)
+    else:
         return
   def receiveRent(self, value):
     if self.isPlayer == False:
@@ -859,50 +924,173 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       self.gainMoney(value)
       self.isPlayer = True
 
+  def oppSet(self, color):
+    if not self.isPlayer:
+      x = False
+      self.isPlayer = True
+      if self.isASet(color):
+        x = True
+      self.isPlayer = False
+      return x
+    else:
+      x = False
+      self.isPlayer = False
+      if self.isASet(color):
+        x = True
+      self.isPlayer = False
+      return x
+    return False
+    
+  def oppMort(self, color, name):
+    if not self.isPlayer:
+      x = False
+      self.isPlayer = True
+      if self.propMortgaged(color, name):
+        x = True
+      return x
+    else:
+      x = False
+      self.isPlayer = False
+      if self.propMortgaged(color, name):
+        x = True
+      return x
+    return False
+     
   def payRent(self):
+    # TODO: This information should be communicated to player, either through Voice or UI
     self.namingShortcut()
-    if self.isPlayer == False:
-      if self.propMortgaged(self.color, self.name):
+    if self.isPlayer == False: # Robot owes player money
+      if self.oppMort(self.color, self.name):
         print("No rent! This property has been mortgaged!")
-      elif self.square == -1 and self.isASet(self.color):
+      elif self.square == -1 and self.oppSet(self.color):
         if self.color == "Utilities":
-          self.giveMoney(self.move * 10)
-          self.receiveMoney(self.move * 10)
+          # Have the robot announce the rent
+          rent = self.move * 10
+          audio = "I owe you" + self.rent + "dollars."
+          language = "en" 
+          audioTalk = gTTS(text=audio, lang=language, slow=False)
+          audioTalk.save("audio.mp3")
+          os.system("mpg321 audio.mp3")
+          self.giveMoney(rent)
+          self.receiveRent(rent)
         else:
           house = self.numHouses(self.color, self.name)
           if house > 4:
-            self.giveMoney(self.rentLookup(self.name, True, 0, 1))
-            self.receiveRent(self.rentLookup(self.name, True, 0, 1))
+            rent = self.rentLookup(self.name, True, 0, 1)
+            audio = "I owe you" + self.rent + "dollars."
+            language = "en" 
+            audioTalk = gTTS(text=audio, lang=language, slow=False)
+            audioTalk.save("audio.mp3")
+            os.system("mpg321 audio.mp3")
+            self.giveMoney(rent)
+            self.receiveRent(rent)
+          elif house > 0:
+            rent = self.rentLookup(self.name, True, house)
+            audio = "I owe you" + self.rent + "dollars."
+            language = "en"
+            audioTalk = gTTS(text=audio, lang=language, slow=False)
+            audioTalk.save("audio.mp3")
+            os.system("mpg321 audio.mp3")
+            self.giveMoney(rent)
+            self.receiveRent(rent)
+
           else:
-            self.giveMoney(self.rentLookup(self.name, True, house))
-            self.receiveRent(self.rentLookup(self.name, True, house))
+            rent = self.rentLookup(self.name, True)
+            audio = "I owe you" + self.rent + "dollars."
+            language = "en" 
+            audioTalk = gTTS(text=audio, lang=language, slow=False)
+            audioTalk.save("audio.mp3")
+            os.system("mpg321 audio.mp3")
+            self.giveMoney(rent)
+            self.receiveRent(rent)
+
       elif self.square == -1:
         if self.color == "Utilities":
-          self.giveMoney(self.move * 4)
-          self.receiveRent(self.move * 4)
+          rent = self.move * 4
+          audio = "I owe you" + self.rent + "dollars."
+          language = "en"
+          audioTalk = gTTS(text=audio, lang=language, slow=False)
+          audioTalk.save("audio.mp3")
+          os.system("mpg321 audio.mp3")
+          self.giveMoney(rent)
+          self.receiveRent(rent)
         else:
-          self.giveMoney(self.rentLookup(self.name))
-          self.receiveRent(self.rentLookup(self.name)) 
+          rent = self.rentLookup(self.name)
+          audio = "I owe you" + self.rent + "dollars."
+          language = "en" 
+          audioTalk = gTTS(text=audio, lang=language, slow=False)
+          audioTalk.save("audio.mp3")
+          os.system("mpg321 audio.mp3")
+          self.giveMoney(rent)
+          self.receiveRent(rent)
 
       #social here, anger.
 
     else:
-      if self.propMortgaged(self.color, self.name):
+      if self.oppMort(self.color, self.name):
         print("No rent! This property has been mortgaged!")
       elif self.square == 1 and self.color in self.ownedSets:
         if self.color == "Utilities":
-          self.giveMoney(self.move * 10)
+          rent = self.move * 10
+          audio = "You owe me" + self.rent + "dollars."
+          language = "en"
+          audioTalk = gTTS(text=audio, lang=language, slow=False)
+          audioTalk.save("audio.mp3")
+          os.system("mpg321 audio.mp3")
+          self.giveMoney(rent)
+          self.receiveRent(rent)
         else:
           house = self.ownedProperties[self.color][self.name][1]
           if house > 4:
-            self.giveMoney(self.rentLookup(self.name, True, False, True))
+            rent = self.rentLookup(self.name, True, False, True)
+            audio = "You owe me" + self.rent + "dollars."
+            language = "en"
+            audioTalk = gTTS(text=audio, lang=language, slow=False)
+            audioTalk.save("audio.mp3")
+            os.system("mpg321 audio.mp3")
+            self.giveMoney(rent)
+            self.receiveRent(rent)
+
+          elif house > 0:
+            rent = self.rentLookup(self.name, True, house)
+            audio = "You owe me" + self.rent + "dollars."
+            language = "en"
+            audioTalk = gTTS(text=audio, lang=language, slow=False)
+            audioTalk.save("audio.mp3")
+            os.system("mpg321 audio.mp3")
+            self.giveMoney(rent)
+            self.receiveRent(rent)
+
           else:
-            self.giveMoney(self.rentLookup(self.name, True, house))
+            rent = self.rentLookup(self.name, True)
+            audio = "You owe me" + self.rent + "dollars."
+            language = "en"
+            audioTalk = gTTS(text=audio, lang=language, slow=False)
+            audioTalk.save("audio.mp3")
+            os.system("mpg321 audio.mp3")
+            self.giveMoney(rent)
+            self.receiveRent(rent)
+
       elif self.square == 1 and self.color not in self.ownedSets:
         if self.color == "Utilities":
-          self.giveMoney(self.move * 4)
+          rent = self.move * 4
+          audio = "You owe me" + self.rent + "dollars."
+          language = "en"
+          audioTalk = gTTS(text=audio, lang=language, slow=False)
+          audioTalk.save("audio.mp3")
+          os.system("mpg321 audio.mp3")
+          self.giveMoney(rent)
+          self.receiveRent(rent)
+
         else:
-          self.giveMoney(self.rentLookup(self.name))
+          rent = self.rentLookup(self.name)
+          audio = "You owe me" + self.rent + "dollars."
+          language = "en"
+          audioTalk = gTTS(text=audio, lang=language, slow=False)
+          audioTalk.save("audio.mp3")
+          os.system("mpg321 audio.mp3")
+          self.giveMoney(rent)
+          self.receiveRent(rent)
 
 
   def endTurn(self):
@@ -948,9 +1136,12 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
         if self.playerOwnedProperties[color][prop][0] == True:
           playerTotal += self.board[self.cards[prop][0]][3]
     if robotTotal > playerTotal:
+      # TODO: WebUI for this?
       print("You lose! The robot has {} dollars of total assets while you have {} dollars of total assets".format(robotTotal, playerTotal))
+      return True
     elif playerTotal > robotTotal:
       print("You win! You have {} dollars of total assets while BoardBot has {} dollars of total assets.".format(playerTotal, robotTotal))
+      return False
     else:
       print("Tie!")
          
@@ -958,11 +1149,19 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
   def endGame(self):
     if self.checkBankruptcy == True:
       if self.isPlayer == True:
+        # TODO: Web UI for this
         print("Game Over! You have gone bankrupt!")
       else:
         print("You win! I have gon bankrupt!")
     else:
-      self.countAssets()
+      if self.countAssets():
+        # - BILL TONG
+        subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/sassy.sh'], shell=True)
+        trump.robotWin()
+      else:
+        # - BILL TONG
+        subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/angry.sh'], shell=True)
+        trump.playerWin()
     quit()
       
           
@@ -976,6 +1175,7 @@ class Jail(Actions):
     self.playerJailFree = False
     
   def goToJail(self):
+    # TODO: Communicate this to player somehow: Maybe with a "jail" emoji or web UI feedback
     self.namingShortcut()
     #Trump voice
     if self.isPlayer == False:
@@ -1014,16 +1214,13 @@ class Jail(Actions):
       self.playerInJail = False
 
   def rollOut(self):
-    temp = rules.rollDice()
-    if temp[0] == temp[1]:
-      #Bragging
-      if self.isPlayer == False:
-        self.robotInJail = False
-        
-      else:
-        self.playerInJail = False
+    if self.isPlayer == False:
+      temp = rules.rollDice()
+      if temp[0] == temp[1]:
+        #Bragging
+        self.robotInJail = False   
     else:
-      return
+      self.playerInJail = False
 
 
 class Decisions(Jail):
@@ -1034,121 +1231,132 @@ class Decisions(Jail):
  
 
   def playerDecisions(self):
-    c = self.playerStartTurn()
+    global webPlayerInfoPublisher
+    global webAnnouncePublisher
+    c = self.playerStartTurn() # Get dice roll
     endTurn = False
     while endTurn == False:
-      if c == 1 or c == 2:
+      message = roslibpy.Message({'data': "It is your turn. Choose an action, or end your turn."})
+      webAnnouncePublisher.publish(message)
+      choice = rospy.wait_for_message("playerinput", Int16).data
+      if c == 1 or c == 2: # 1: dice do not match. 2: dice match (rolled doubles)
+        #choice = rospy.wait_for_message("playerinput", Int16).data
         if c == 1:
           self.doubleCounter = 0
-        choice = int(
-          input(
-            "(1) Buy\n(2) Sell Houses\n(3)Mortgage Properties\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) End Turn\n(0) End Game: "
-          ))
+        #choice = int(
+        #  input(
+        #    "(1) Buy\n(2) Sell Houses\n(3)Mortgage Properties\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) End Turn\n(0) End Game: "
+        #  ))
       else:
-        choice = int(
-          input(
-            "(1) Buy\n(2) Sell\n(3)Mortgage\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) Skip Turn\n(7) Roll Dice\n(0) End Game: "
-          ))
+        pass
+        #choice = int(
+        #  input(
+        #    "(1) Buy\n(2) Sell\n(3)Mortgage\n(4) Check Balance\n(5) Declare Bankruptcy\n(6) Skip Turn\n(7) Roll Dice\n(0) End Game: "
+        #  ))
       if choice == 1:
-        choice2 = int(input("(1) Buy Property\n(2) Buy Upgrade: "))
-        if choice2 == 1:
-          self.buy()
-        elif choice2 == 2:
-          if len(self.playerOwnedSets) != 0:
-            print("Your current completed sets are " +
-                  str(self.playerOwnedSets))
+        self.buy() # buy property
+#        if choice2 == 1:
+#          self.buy()
+#        elif choice2 == 2:
+#          if len(self.playerOwnedSets) != 0:
+#            print("Your current completed sets are " +
+#                  str(self.playerOwnedSets))
+#            i = input("What color set would you like to build on?: ")
+#            self.buyHouse(i)
+#          else:
+#            # - BILL TONG
+#            subprocess.call(['./surprise.sh'], shell=True)
+#            trump.dialogue(6)
+#            print("You don't have any completed sets!")
+      elif choice == 2:
+         print(self.playerOwnedProperty)
+         if len(self.playerOwnedSets) != 0:
+            print("The colors you can build on are " + str(self.playerOwnedSets))
             i = input("What color set would you like to build on?: ")
             self.buyHouse(i)
-          else:
-            print("You don't have any completed sets!")
       elif choice == 3:
-        choice2 = input("(1) Mortgage\n(2) Unmortgage")
-        if int(choice2) == 1:
-          self.mortgage()
-        else:
-          self.unmortgage()
+        #choice2 = input("(1) Mortgage\n(2) Unmortgage")
+        #if int(choice2) == 1:
+        self.mortgage()
+        #else:
+          #self.unmortgage()
       elif choice == 4:
-        print(self.playerMoneySum)
-        print("A more detailed breakdown: " + str(self.playerMoney))
-        if len(self.playerOwnedProperty) != 0:
-          print(self.playerOwnedProperty)
-        else:
-          print("You own no properties!")
+        self.unmortgage()
+        #print(self.playerMoneySum)
+        #moneyMsg = roslibpy.Message({'data': self.playerMoneySum})
+        #webPlayerInfoPublisher.publish(moneyMsg)
+        #print("A more detailed breakdown: " + str(self.playerMoney))
+        #if len(self.playerOwnedProperty) != 0:
+        #  print(self.playerOwnedProperty)
+        #  tempString = ', '.join(self.playerOwnedProperty) # Collapse list into string
+        #  tempString = tempString + ' Marvin Gardens,' + ' Boardwalk' # TODO: Testing for web ui; delete this
+        #  propMsg = roslibpy.Message({'data': tempString})
+        #  webPlayerPropertyPublisher.publish(propMsg)
+        #else:
+          # - BILL TONG
+        #  subprocess.call(['./surprise.sh'], shell=True)
+        #  trump.dialogue(7)
+        #  print("You own no properties!")
 
       elif choice == 5:
         self.checkBankruptcy()
 
       elif choice == 6:
+        #TODO: Endturn
         break
       elif choice == 7:
-        r = rules.rollDice()
-        print("You rolled (" + str(r[0]) + "," + str(r[1]) + ").")
-        self.updatePosition(r[0] + r[1])
+        #r = rules.rollDice()
+        #print("You rolled (" + str(r[0]) + "," + str(r[1]) + ").")
+        #self.updatePosition(r[0] + r[1])
         c = 1
       elif choice == 0:
         self.endGame()
+    # End while loop
+
+    # Update Web UI with player information    
+    moneyMsg = roslibpy.Message({'data': self.playerMoneySum})
+    webPlayerInfoPublisher.publish(moneyMsg)
+
     if c == 2:
       self.doubleCounter += 1
       if self.doubleCounter == 4:
         self.goToJail()
       else:
         self.playerDecisions()
-      
-    return
-    """match int(choice):
-        case 1:
-          choice2 = input("(1) Buy Properties\n(2) Improve Property: ")
-          match int(choice2):
-            case 1:
-              self.buy()
-            case 2:
-              if len(self.playerOwnedSets) != 0:
-                print("Your current completed sets are " + str(self.playerOwnedSets))
-                i = input("What color set would you like to build on?: ")
-                self.buyHouse(i)
-              else:
-                print("You don't have any completed sets!")
-        case 2:
-          return
-        case 3:
-          self.mortgage()
-        case 4:
-          print(self.playerMoneySum)
-          print("A more detailed breakdown: " + str(self.playerMoney))
-          if len(self.playerOwnedProperty) != 0:
-            print(self.playerOwnedProperty)
-          else:
-            print("You own no properties!")
-            
-          
-        case 5:
-          self.checkBankruptcy()
-        case 6:
-          endTurn = True
-        case 7:
-          r = rules.rollDice()
-          self.updatePosition(r[0] + r[1])
-          c = 1"""
 
+    return
+    # End of playerDecisions
   def playerStartTurn(self):
-    print("It is your turn! Would you like to roll the dice?")
-    playerIn = input("[y/n]: ")
-    if playerIn == "y":
-      r = rules.rollDice()
-      print("You rolled (" + str(r[0]) + "," + str(r[1]) + ").")
-      self.updatePosition(r[0] + r[1])
-      if r[0] == r[1]:
-        return 2
-      else:
-        return 1
-    return 0
-    """match playerIn:
-      case "y":
-        r = rules.rollDice()
-        self.updatePosition(r[0] + r[1])
-        return 1
-      case "n":
-        return 0"""
+    # TODO: If this is used, then this functionality should shift to web UI
+    global server # for Web UI
+    global webPlayerInfoPublisher # For webUI topic
+    global webPlayerPropertyPublisher
+    #r = []
+    print("It is the player's turn! Roll the dice.\n")
+    global webAnnouncePublisher
+    message = roslibpy.Message({'data': "It is your turn! Roll the dice."})
+    webAnnouncePublisher.publish(message)
+
+    #playerIn = input("[y/n]: ")
+    #if playerIn == "y":
+    dice = rospy.wait_for_message("diceinput", Int16).data # Get the dice total as: dice1dice2
+    dice1 = int(dice//10) # Extract first digit (a single die value)
+    dice2 = int(dice%10) # Extract second digit (the other die value)
+    choice = [dice1, dice2]
+    print("Dice rolled:")
+    print(dice1, " ", dice2)
+    #print("\n")
+    #choice = input("What did you roll? (Format it as X X)")
+    #for c in choice:
+    #if c.isalnum():
+        #r.append(int(c))
+    diceTotal = dice1 + dice2
+    self.updatePosition(diceTotal)
+    #webInfoPublisher.publish(roslibpy.Message({'data': diceTotal}))  TODO: Change the topic for this
+    if dice1 == dice2:
+        return 2 # doubles!
+    else:
+        return 1 # not doubles
     
   def robotDecision(self):
     ownedWeights = {}
@@ -1157,6 +1365,8 @@ class Decisions(Jail):
     if not self.checkBankruptcy():
       if self.square == 0:
         self.buy()
+        subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/happy.sh'], shell=True)
+        trump.happy()
       if self.robotMoneySum <= 200:
         self.mortgage()
       if len(self.robotMortgaged) > 0:
@@ -1168,6 +1378,7 @@ class Decisions(Jail):
         self.buyHouse(max_key)
     else:
       if self.checkBankruptcy():
+        # TODO: Web UI output here, maybe
         print("You win! I have gone bankrupt.")
         quit()
       else:
@@ -1182,19 +1393,44 @@ class PlayGame(Decisions):
     
   def startGame(self):
     robotRoll = rules.gameSetup()
-    robotSum = robotRoll[0] + robotRoll[1]
-    r = rules.rollDice()
-    playerSum = r[0] + r[1]
-    print("You rolled ({}, {})".format(r[0], r[1]))
+    # Display initial cash for player and robot
+    global webPlayerInfoPublisher
+    moneyMsg1 = roslibpy.Message({'data': (self.playerMoneySum)})
+    webPlayerInfoPublisher.publish(moneyMsg1)
+
+    global webRobotInfoPublisher
+    moneyMsg2 = roslibpy.Message({'data': (self.robotMoneySum)})
+    webRobotInfoPublisher.publish(moneyMsg2)
+
+    # TODO: Replace with real dice roll
+    #robotSum = robotRoll[0] + robotRoll[1]
+    robotSum = 1 #Testing
+    #r = rules.rollDice()
+    #playerRoll = input("What did you roll? Input as (X X): ") 
+    #playerSum = int(playerRoll[0]) + int(playerRoll[2]) #Testing
+    playerSum = 0
+    #print("I rolled ({}, {})".format(r[0], r[1]))
     if robotSum > playerSum:
+      # - BILL TONG
+      subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/neutral.sh'], shell=True)
+      trump.robotStart()
       print("I will be going first!")
     else:
+      # - BILL TONG
+      subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/neutral.sh'], shell=True)
+      trump.playerStart()
       print("You will be going first!")
       self.isPlayer = True
 
   def robotTurn(self):
-    diceMovePub = rospy.Publisher('diceRoll', Int16, queue_size=10)
-    rospy.sleep(2.0)
+    # TODO: info from here should be pushed (published) to Web UI
+    #diceMovePub = rospy.Publisher('diceRoll', Int16, queue_size=10)
+    #rospy.sleep(2.0)
+    print("It is the robot's turn!.\n")
+    global webAnnouncePublisher
+    message = roslibpy.Message({'data': "It is BoardBot's turn."})
+    webAnnouncePublisher.publish(message)
+
     if self.robotInJail == True:
       if self.robotJailFree == True:
         print("I will use my card!")
@@ -1209,46 +1445,55 @@ class PlayGame(Decisions):
         self.payFine()
         self.endTurn()
     else:
-      msg = 1
       # Standard turn: Roll dice, move piece, do action
-      r = rules.rollDice() # Randomly generate dice for testing
-      diceMovePub.publish(msg)
-      print("\nHi, I should be publishing right now ;) ")
+      rules.rollDice() # Rolling Dice
+      #diceMovePublisher = rospy.Publisher('diceRoll', Int16, queue_size=10)
+      #diceMovePublisher.publish(0) # "0" means to roll the dice
+      print("\nin AI: robot should have rolled dice")
+      #rospy.sleep(2.0)
+
       
       #rospy.spin() # wait here
-
+      
+      # Waits for computer vision to pass dice vals then passes them to movement
+      rollVal = rospy.wait_for_message('diceVals', Int16MultiArray).data
+      
+      diceVal = int(rollVal[0]) + int(rollVal[1])
+      rules.publishDice(diceVal)
+      
       #r = rules.rollDice() # Randomly generate dice for testing
-      print("I rolled (" + str(r[0]) + ", " + str(r[1]) + ")")
-      self.updatePosition(r[0] + r[1])
+      print("I rolled (" + str(rollVal[0]) + ", " + str(rollVal[1]) + ")")
+      
+      # TODO
+      # Needs to be reintegrated somewhere else
+      self.updatePosition(rollVal[0] + rollVal[1])
       self.robotDecision()
-      if r[0] == r[1]:
+      rospy.sleep(2)
+      if rollVal[0] == rollVal[1]:
         self.doubleCounter += 1
         if self.doubleCounter == 4:
           self.goToJail()
           self.doubleCounter = 0
         else:
-          client = roslibpy.Ros(host='134.197.95.215', port=9090)
-          client.connect()
-          client.run()
-          self.webPublisher(client)
-          webPub.terminate()    
+                #client = roslibpy.Ros(host='134.197.95.215', port=9090)
+                #self.webPublisher() 
           self.robotTurn()
       else:
         self.doubleCounter = 0
-        client = roslibpy.Ros(host='134.197.95.215', port=9090)
-        client.connect()
-        client.run()
-        self.webPublisher(client)
-        client.terminate()
+            #self.webPublisher()
         self.endTurn()
-      print("\n")
+        print("\n")
 
   def playerTurn(self):
+    # TODO: Web UI will do a lot of I/O here, probably
     if self.playerInJail == False:
       self.playerDecisions()
       self.endTurn()
       print("\n")
     else:
+      # - BILL TONG
+      subprocess.call(['/home/team34/ros_ws/src/baxter_tools/scripts/emotions/sad.sh'], shell=True)
+      trump.jail()
       print("You are in Jail!")
       choice = ""
       if self.playerJailFree == False:
@@ -1262,26 +1507,29 @@ class PlayGame(Decisions):
       elif int(choice) == 3:
         self.useCard()
         
+  # Core gameplay loop: after a player initiates the game via Web UI, players take alternating turns
   def playGame(self, server):
   #def playGame(self):
     global begin 
     begin = False
-    #subprocess.call(['./angry.sh'], shell=True)
-    
     self.listener = roslibpy.Topic(server, '/begin', 'std_msgs/String') # Set up a topic 'begin' via the server
 
-    while not begin:
-      self.listener.subscribe(beginCallback)
+    #while not begin:
+    #  self.listener.subscribe(beginCallback)
+    begin = True
     if begin == True: # Wait until the player sends the signal to begin the game
       self.startGame()
+      self.isPlayer = True # TODO: forcing player to go first
       while self.turnCounter > 0:
         if self.isPlayer == True:
-          self.playerTurn()
+            # TODO: web UI gets input from player to begin turn
+          self.playerTurn()     # Human player takes a turn
         else:
-          self.robotTurn()
+          self.robotTurn()      # BoardBot takes a turn
         sleep(1)
         if self.turnCounter == 0:
-          self.endGame()
+            # TODO: Web UI should display victory/defeat
+          self.endGame() # Check endgame conditions
 
 
 class debug(PlayGame):
@@ -1289,7 +1537,8 @@ class debug(PlayGame):
   def __init__(self, *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.setDebug = False
-    inp = input("Would you like to enter debug mode? [y/n]: ")
+    #inp = input("Would you like to enter debug mode? [y/n]: ")
+    inp = "n" # Disabling debug mode for now
     if inp.lower() == "y":
       print("Entering debug mode!")
       self.setDebug = True
@@ -1312,27 +1561,36 @@ def beginCallback(data):
         print("\n\nStart the game already!\n\n")
     else:
         print("\nNot yet")
-    
+
 
 def playTurn():
     try:
       while True:
         rospy.init_node('AI') # Start a ROS node for pub-sub
+        global server # Create global var to connect pubsub to rosbridge (web UI)
+        global webPlayerInfoPublisher       # Create global var for sending money info to web UI
+        global webPlayerPropertyPublisher   # Create global var for sending property info to web UI
+        global webRobotInfoPublisher        # Create global var for sending money info to web UI
+        global webRobotPropertyPublisher    # Create global var for sending property into to web UI
+        global webAnnouncePublisher         # Create global var for sending messages and prompts to the web UI
         server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
+        webPlayerInfoPublisher = roslibpy.Topic(server, '/playerinfo', 'std_msgs/Int16')
+        webPlayerPropertyPublisher = roslibpy.Topic(server, '/playerassets', 'std_msgs/String')
+        webRobotInfoPublisher = roslibpy.Topic(server, '/robotinfo', 'std_msgs/Int16')
+        webRobotPropertyPublisher = roslibpy.Topic(server, '/robotassets', 'std_msgs/String')
+        webAnnouncePublisher = roslibpy.Topic(server, '/announcements', 'std_msgs/String')
+        #server.connect()
         server.run()       # Launch server
         d = debug()
-        d.playGame(server)       # This .py file must be associated with a ROS node
-        server.terminate()
+        d.playGame(server)       # This is the main gameplay function
+        server.terminate()  
     except KeyboardInterrupt:
-      server.terminate()  # Make sure that the server shuts down if program terminates early
+      server.terminate()  # Ensure that server properly closes if program is closed
     """rospy.init_node('AI') # Start a ROS node for pub-sub
-    #server = roslibpy.Ros(host='134.197.95.215', port=9090) # Assign connection info
-    #server.run()       # Launch server
     d = debug()
-    d.playGame()  """     # This .py file must be associated with a ROS node
+    d.playGame()     # This .py file must be associated with a ROS node
+    rospy.sleep(100.0)"""
         
-        
-        
-
 if __name__ == "__main__":
   playTurn()
+
