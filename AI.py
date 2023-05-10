@@ -13,12 +13,6 @@ import os
 #Some commented out code is made using match/case, which is Python 3.10, which is too high of a version for Baxter. I kept it in here as it is code I have written. 
 
 #new Board which is a dict that is [type of square, color/name, name, weight]. Weight is used for selling properties and is found using data online on which properties are the most valuable.
-
-"""def writePublisher(diceRoll):
-  pub = rospy.Publisher('spaceInfo', Int16, queue_size = 10) # Message "object": Topic name, message type, number of messages to queue up
-  
-  rate = rospy.Rate(1)   # send at 1 Hz intervals
-  pub.publish(diceRoll)"""
     
 class board(rules.BoardSpaces, rules.TitleDeedCards):
   Board = {
@@ -133,21 +127,6 @@ class board(rules.BoardSpaces, rules.TitleDeedCards):
         print("I landed on " + self.name)
       else:
         print("You've landed on " + self.name)
-      """match self.name:
-        case "CommunityChest":
-          self.pullCard()
-        case "Chance":
-          self.pullCard()
-        case "IncomeTax":
-          if self.isPlayer == False:
-            self.giveMoney(min(200, self.robotMoneySum * 0.1))
-          else:
-            self.giveMoney(min(200, self.playerMoneySum * 0.1))
-        case "Go To Jail":
-          self.currPos = 10
-          self.inJail = True
-        case "Luxury Tax":
-          self.giveMoney(75)"""
 
       if self.name == "Community Chest":
         print("Pulling card")
@@ -634,13 +613,7 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
           choice2 = input(
             "Are your sure? You will not be able to buy houses in this color set anymore [y/n]: "
           )
-          """match choice2:
-            case "y":
-              self.gainMoney(self.cards[choice][2])
-              self.playerOwnedProperties[color][choice][2] = True
-              return
-            case "n":
-              return"""
+          
           if choice2 == "y":
             self.gainMoney(self.cards[choice][1])
             self.playerOwnedProperties[color][choice][2] = True
@@ -795,26 +768,6 @@ class Actions(Assets, rules.ChanceCommunityCards, rules.TitleDeedCards):
       self.goToJail()
     elif cardNum == 16:
       self.getJailCard()
-      
-    """match cardNum:
-      case 1:
-        if self.isPlayer == False:
-          self.giveMoney(self.house * 40 + self.hotel * 110)
-        else:
-          self.giveMoney(self.playerHouse * 40 + self.playerHotel * 110)
-      case 2:
-        self.currPos = 0
-        self.passGo()
-      case 3:
-        self.gainMoney(10)
-      case 4:
-        self.gainMoney(50)
-      case 5:
-        self.gainMoney(100)
-      case 6:
-        self.gainMoney(10 * self.numPlayers)
-      case 6:
-        return False"""
 
   def readCardChance(self, cardNum):
     # TODO: Possible feedback here
@@ -1373,41 +1326,6 @@ class Decisions(Jail):
 
     return
     # End of playerDecisions
-    """match int(choice):
-        case 1:
-          choice2 = input("(1) Buy Properties\n(2) Improve Property: ")
-          match int(choice2):
-            case 1:
-              self.buy()
-            case 2:
-              if len(self.playerOwnedSets) != 0:
-                print("Your current completed sets are " + str(self.playerOwnedSets))
-                i = input("What color set would you like to build on?: ")
-                self.buyHouse(i)
-              else:
-                print("You don't have any completed sets!")
-        case 2:
-          return
-        case 3:
-          self.mortgage()
-        case 4:
-          print(self.playerMoneySum)
-          print("A more detailed breakdown: " + str(self.playerMoney))
-          if len(self.playerOwnedProperty) != 0:
-            print(self.playerOwnedProperty)
-          else:
-            print("You own no properties!")
-            
-          
-        case 5:
-          self.checkBankruptcy()
-        case 6:
-          endTurn = True
-        case 7:
-          r = rules.rollDice()
-          self.updatePosition(r[0] + r[1])
-          c = 1"""
-
   def playerStartTurn(self):
     # TODO: If this is used, then this functionality should shift to web UI
     global server # for Web UI
@@ -1439,13 +1357,6 @@ class Decisions(Jail):
         return 2 # doubles!
     else:
         return 1 # not doubles
-    """match playerIn:
-      case "y":
-        r = rules.rollDice()
-        self.updatePosition(r[0] + r[1])
-        return 1
-      case "n":
-        return 0"""
     
   def robotDecision(self):
     ownedWeights = {}
@@ -1619,16 +1530,6 @@ class PlayGame(Decisions):
         if self.turnCounter == 0:
             # TODO: Web UI should display victory/defeat
           self.endGame() # Check endgame conditions
-
-    """self.startGame()
-    while self.turnCounter > 0:
-      if self.isPlayer == True:
-        self.playerTurn()
-      else:
-        self.robotTurn()
-      sleep(1)
-      if self.turnCounter == 0:
-        self.endGame()"""
 
 
 class debug(PlayGame):
