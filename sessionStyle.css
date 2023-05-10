@@ -34,6 +34,8 @@ body {
   box-shadow: 0px 0px 20px 0px rgba(red, green, blue, alpha);
   display: flex;
 }
+
+/*For displaying text information on the game state*/
 .container .announcer-text {
   width: 800px;
   height: 300px;
@@ -66,6 +68,7 @@ input[type="number"] {
   font-weight: bold;
 }
 
+/*Configurations related to the robot's panel*/
 .leftboard {
   position: absolute;
   left: 50px;
@@ -89,6 +92,7 @@ input[type="number"] {
   color: orange;
 }
 
+/*Configurations related to the player's panel*/
 .rightboard {
   position: absolute;
   right: 50px;
@@ -121,7 +125,7 @@ input[type="number"] {
   gap: 80px;
   top: 25px;
 }
-
+/*Customizing robot/player profile icon and hover animations*/
 .card {
   height: 120px;
   width: 350px;
